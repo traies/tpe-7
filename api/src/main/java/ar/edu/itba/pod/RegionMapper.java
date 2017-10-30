@@ -6,7 +6,7 @@ import com.hazelcast.mapreduce.Mapper;
 import java.io.Serializable;
 import java.util.StringTokenizer;
 
-public class EchoMapper implements Mapper<String, InhabitantRecord, Region, Integer>, Serializable {
+public class RegionMapper implements Mapper<String, InhabitantRecord, Region, Integer>, Serializable {
     private static final Long ONE = 1L;
 
     @Override

@@ -21,7 +21,7 @@ public class Server {
 
         HazelcastInstance hz = Hazelcast.newHazelcastInstance();
 
-        File file = new File("census100.csv");
+        File file = new File("census1000000.csv");
         IList<InhabitantRecord> list = hz.getList("censoPodGrupo7");
         try (Scanner scanner = new Scanner(file)) {
             String [] fields ;

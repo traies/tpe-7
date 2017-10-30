@@ -7,7 +7,7 @@ import org.omg.PortableInterceptor.INACTIVE;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EchoReducerFactory implements ReducerFactory<Region, Integer , Long> {
+public class RegionInhabitantsReducerFactory implements ReducerFactory<Region, Integer , Long> {
 
     @Override
     public Reducer<Integer, Long> newReducer(Region s) {
