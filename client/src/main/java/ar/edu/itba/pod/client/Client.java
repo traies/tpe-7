@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public class Client {
     private static Logger logger = LoggerFactory.getLogger(Client.class);
@@ -84,7 +83,7 @@ public class Client {
         }
     }
 
-    public static Job<Province, InhabitantRecord> hazelcastSetUp(String[] addresses, String path) {
+    static Job<Province, InhabitantRecord> hazelcastSetUp(String[] addresses, String path) {
         final ClientConfig ccfg = new ClientConfig();
         ccfg.getGroupConfig().setName("tpe-7");
         ccfg.getGroupConfig().setPassword("tpe-7");

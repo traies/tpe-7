@@ -9,17 +9,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * Created by traie_000 on 11/3/2017.
- */
-public final class Query {
+final class Query {
     private Job<Province, InhabitantRecord> job;
 
-    public Query(Job<Province, InhabitantRecord> job) {
+    Query(Job<Province, InhabitantRecord> job) {
         this.job = job;
     }
 
-    public Map<Region, Long> populationPerRegion() throws ExecutionException, InterruptedException {
+    Map<Region, Long> populationPerRegion() throws ExecutionException, InterruptedException {
         ICompletableFuture<Map<Region, Long>> future = job
                 .mapper(new RegionMapper())
                 .reducer(new RegionInhabitantsReducerFactory())
@@ -27,7 +24,7 @@ public final class Query {
         return future.get();
     }
 
-    public List<Map.Entry<String, Long>> nDepartmentsByPopulation(Province prov, int n) throws ExecutionException, InterruptedException {
+    List<Map.Entry<String, Long>> nDepartmentsByPopulation(Province prov, int n) throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<String,Long>>> future = job
                 .mapper(new ProvinceFilterMapper(prov))
                 .reducer(new InhabitantsPerDepartmentReducerFactory())
@@ -41,7 +38,7 @@ public final class Query {
         return future.get();
     }
 
-    public static <K, V> List<String> mapToStringList(Collection<Map.Entry<K,V>> collection) {
+    static <K, V> List<String> mapToStringList(Collection<Map.Entry<K,V>> collection) {
         return collection.stream().map(x -> String.format("%s, %s", x.getKey(), x.getValue())).collect(Collectors.toList());
     }
 }
