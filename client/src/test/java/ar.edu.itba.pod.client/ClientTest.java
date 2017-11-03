@@ -59,7 +59,7 @@ public class ClientTest {
 
     @Test
     public void nDepartmentsByPopulation() throws ExecutionException, InterruptedException {
-        List<Map.Entry<String,Long>> result = query.nDepartmentsByPopulation(10);
+        List<Map.Entry<String,Long>> result = query.nDepartmentsByPopulation(Province.SANTA_FE, 10);
 
         for(Map.Entry<String,Long> entry : result){
             logger.debug(String.format("%s %d", entry.getKey(), entry.getValue()));

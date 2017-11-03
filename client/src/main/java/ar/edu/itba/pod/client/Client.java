@@ -55,13 +55,9 @@ public class Client {
 
             /* Optional Parameters */
             Integer n = Integer.valueOf(properties.getProperty("n", "1"));
-            String prov = properties.getProperty("prov", "Buenos Aires");
-
+            Province prov = Province.getProvince(properties.getProperty("prov", "Buenos Aires"));
             setLogger(timeOutPath);
-
-            timeLogger.info("Inicio de la lectura del archivo.");
             Job<Province, InhabitantRecord> job = hazelcastSetUp(addresses, inPath);
-            timeLogger.info("Fin de la lectura del archivo.");
             Query query = new Query(job);
             List<String> list;
 
@@ -69,14 +65,11 @@ public class Client {
             switch (queryNumber) {
                 case 1:
                     Map<Region, Long> queryMap = query.populationPerRegion();
-                    list = queryMap.entrySet().stream()
-                            .map(x -> String.format("%s, %s",  x.getKey(), x.getValue()))
-                            .collect(Collectors.toList());
+                    list = Query.mapToStringList(queryMap.entrySet());
                     break;
                 case 2:
-                    List<Map.Entry<String, Long>> queryList = query.nDepartmentsByPopulation(n);
-                    list = queryList.stream().map(x -> String.format("%s, %s", x.getKey(), x.getValue()))
-                            .collect(Collectors.toList());
+                    List<Map.Entry<String, Long>> queryList = query.nDepartmentsByPopulation(prov, n);
+                    list = Query.mapToStringList(queryList);
                     break;
                 default:
                     list = new ArrayList<>();
@@ -99,6 +92,7 @@ public class Client {
         final HazelcastInstance hz = HazelcastClient.newHazelcastClient(ccfg);
         MultiMap<Province, InhabitantRecord> map = hz.getMultiMap("censoPodGrupo7");
 
+        timeLogger.info("Inicio de la lectura del archivo.");
         try (Reader r = new FileReader(path)) {
             CSVFormat format = CSVFormat.RFC4180.withHeader(RecordEnum.class);
             for (CSVRecord record : format.parse(r)) {
@@ -113,10 +107,9 @@ public class Client {
         } catch (IOException e) {
             logger.error("ERROR", e);
         }
-
+        timeLogger.info("Fin de la lectura del archivo.");
         KeyValueSource<Province, InhabitantRecord> source = KeyValueSource.fromMultiMap(map);
         JobTracker jobTracker = hz.getJobTracker("test");
-
         return jobTracker.newJob(source);
     }
 

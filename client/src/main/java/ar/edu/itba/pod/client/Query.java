@@ -4,11 +4,9 @@ import ar.edu.itba.pod.*;
 import com.hazelcast.core.ICompletableFuture;
 import com.hazelcast.mapreduce.Job;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -29,9 +27,9 @@ public final class Query {
         return future.get();
     }
 
-    public List<Map.Entry<String, Long>> nDepartmentsByPopulation(int n) throws ExecutionException, InterruptedException {
+    public List<Map.Entry<String, Long>> nDepartmentsByPopulation(Province prov, int n) throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<String,Long>>> future = job
-                .mapper(new ProvinceFilterMapper(Province.SANTA_FE))
+                .mapper(new ProvinceFilterMapper(prov))
                 .reducer(new InhabitantsPerDepartmentReducerFactory())
                 .submit(iterable -> {
                     PriorityQueue<Map.Entry<String,Long>> entryPQueue = new PriorityQueue<>((a, b) -> b.getValue().compareTo(a.getValue()));
@@ -41,5 +39,9 @@ public final class Query {
                     return ans;
                 });
         return future.get();
+    }
+
+    public static <K, V> List<String> mapToStringList(Collection<Map.Entry<K,V>> collection) {
+        return collection.stream().map(x -> String.format("%s, %s", x.getKey(), x.getValue())).collect(Collectors.toList());
     }
 }
