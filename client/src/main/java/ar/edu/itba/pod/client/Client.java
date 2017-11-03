@@ -70,6 +70,10 @@ public class Client {
                     List<Map.Entry<String, Long>> queryList = query.nDepartmentsByPopulation(prov, n);
                     list = Query.mapToStringList(queryList);
                     break;
+                case 3:
+                    List<Map.Entry<Region, Double>> employmentList = query.employmentPerRegion();
+                    list = Query.mapToStringList(employmentList);
+                    break;
                 default:
                     list = new ArrayList<>();
                     logger.warn("invalid query requested.");

@@ -7,19 +7,19 @@ import org.omg.PortableInterceptor.INACTIVE;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegionInhabitantsReducerFactory implements ReducerFactory<Region, Integer , Long> {
+public class RegionInhabitantsReducerFactory implements ReducerFactory<Region, InhabitantRecord, Long> {
 
     @Override
-    public Reducer<Integer, Long> newReducer(Region s) {
+    public Reducer<InhabitantRecord, Long> newReducer(Region s) {
         return new EchoReducer();
     }
 
-    private class EchoReducer extends Reducer<Integer, Long> {
+    private class EchoReducer extends Reducer<InhabitantRecord, Long> {
 
         private Long inhabitantsPerRegion = 0L;
 
         @Override
-        public void reduce(Integer value) {
+        public void reduce(InhabitantRecord value) {
             inhabitantsPerRegion++;
         }
 

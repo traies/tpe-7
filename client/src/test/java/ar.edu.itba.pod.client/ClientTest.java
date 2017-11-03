@@ -67,4 +67,16 @@ public class ClientTest {
         Assert.assertEquals(1, (long) result.get(2).getValue());
         Assert.assertEquals("Castellanos", result.get(2).getKey());
     }
+
+    @Test
+    public void employmentPerRegion() throws ExecutionException, InterruptedException {
+        List<Map.Entry<Region,Double>> result = query.employmentPerRegion();
+
+        Assert.assertEquals(0.03571428571428571, result.get(0).getValue(), 0.0000001);
+        Assert.assertEquals(Region.REGION_BUENOS_AIRES, result.get(0).getKey());
+        Assert.assertEquals(0.0, result.get(1).getValue(), 0.00000001);
+        Assert.assertEquals(0, result.get(2).getValue(), 0.00000001);
+        Assert.assertEquals(0, result.get(3).getValue(),0.00000001);
+        Assert.assertEquals(0, result.get(4).getValue(), 0.00000001);
+    }
 }
