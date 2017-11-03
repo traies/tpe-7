@@ -4,6 +4,10 @@ import ar.edu.itba.pod.EmploymentCondition;
 import ar.edu.itba.pod.InhabitantRecord;
 import ar.edu.itba.pod.Province;
 import ar.edu.itba.pod.Region;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.*;
@@ -17,14 +21,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class Client {
     private static Logger logger = LoggerFactory.getLogger(Client.class);
+    private static ch.qos.logback.classic.Logger timeLogger = ((LoggerContext)LoggerFactory.getILoggerFactory()).getLogger(Client.class);
 
     public static void main(String[] args) throws FileNotFoundException, ExecutionException, InterruptedException {
         logger.info("tpe-7 Client Starting ...");
@@ -39,6 +42,7 @@ public class Client {
         options.addOption(ips);
 
         CommandLineParser parser = new DefaultParser();
+
         try {
             CommandLine cmd = parser.parse(options, args);
             Properties properties = cmd.getOptionProperties("D");
@@ -53,21 +57,24 @@ public class Client {
             Integer n = Integer.valueOf(properties.getProperty("n", "1"));
             String prov = properties.getProperty("prov", "Buenos Aires");
 
+            setLogger(timeOutPath);
 
+            timeLogger.info("Inicio de la lectura del archivo.");
             Job<Province, InhabitantRecord> job = hazelcastSetUp(addresses, inPath);
+            timeLogger.info("Fin de la lectura del archivo.");
             Query query = new Query(job);
             List<String> list;
+
+            timeLogger.info("Comienzo del trabajo map/reduce.");
             switch (queryNumber) {
                 case 1:
                     Map<Region, Long> queryMap = query.populationPerRegion();
-                    logger.debug("result {}", queryMap.toString());
                     list = queryMap.entrySet().stream()
                             .map(x -> String.format("%s, %s",  x.getKey(), x.getValue()))
                             .collect(Collectors.toList());
                     break;
                 case 2:
                     List<Map.Entry<String, Long>> queryList = query.nDepartmentsByPopulation(n);
-                    logger.debug("result {}", queryList.toString());
                     list = queryList.stream().map(x -> String.format("%s, %s", x.getKey(), x.getValue()))
                             .collect(Collectors.toList());
                     break;
@@ -76,6 +83,7 @@ public class Client {
                     logger.warn("invalid query requested.");
                     break;
             }
+            timeLogger.info("Fin del trabajo map/reduce.");
             writeToOutput(list, outPath);
 
         } catch (ParseException e) {
@@ -105,6 +113,7 @@ public class Client {
         } catch (IOException e) {
             logger.error("ERROR", e);
         }
+
         KeyValueSource<Province, InhabitantRecord> source = KeyValueSource.fromMultiMap(map);
         JobTracker jobTracker = hz.getJobTracker("test");
 
@@ -120,5 +129,20 @@ public class Client {
         } catch (IOException e) {
             logger.error("ERROR {}", e);
         }
+    }
+
+    private static void setLogger(String timeOutPath) {
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        encoder.setContext((LoggerContext)LoggerFactory.getILoggerFactory());
+        encoder.setPattern("%d{dd/mm/yyyy HH:mm:ss.SSS} %-5level[%thread] %logger{36}:%line - %msg %n");
+        encoder.start();
+
+        FileAppender<ILoggingEvent> appender = new FileAppender<>();
+        appender.setFile(timeOutPath);
+        appender.setContext((LoggerContext)LoggerFactory.getILoggerFactory());
+        appender.setEncoder(encoder);
+        appender.setAppend(false);
+        appender.start();
+        timeLogger.addAppender(appender);
     }
 }

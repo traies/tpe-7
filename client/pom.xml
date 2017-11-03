@@ -26,6 +26,14 @@
       <artifactId>commons-cli</artifactId>
       <version>1.4</version>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+
   </dependencies>
   <build>
     <testSourceDirectory>src/test/java</testSourceDirectory>
