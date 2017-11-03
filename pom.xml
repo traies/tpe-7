@@ -30,6 +30,12 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-csv</artifactId>
+        <version>1.4</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -55,6 +61,7 @@
       <version>${slf4j.version}</version>
       <scope>runtime</scope>
     </dependency>
+
     <!-- BEGIN: TEST -->
     <dependency>
       <groupId>junit</groupId>
@@ -68,7 +75,6 @@
       <version>1.8.5</version>
       <scope>test</scope>
     </dependency>
-
     <!-- END: TEST -->
   </dependencies>
   <build>

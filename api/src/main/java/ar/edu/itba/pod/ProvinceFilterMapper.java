@@ -5,7 +5,7 @@ import com.hazelcast.mapreduce.Mapper;
 
 import java.io.Serializable;
 
-public class ProvinceFilterMapper implements Mapper<String, InhabitantRecord, String, Long>, Serializable {
+public class ProvinceFilterMapper implements Mapper<Province, InhabitantRecord, String, Long>, Serializable {
     private static final Long ONE = 1L;
     private Province province ;
     public ProvinceFilterMapper(Province province) {
@@ -13,8 +13,8 @@ public class ProvinceFilterMapper implements Mapper<String, InhabitantRecord, St
     }
 
     @Override
-    public void map(String key, InhabitantRecord record, Context<String, Long> context){
-        if (province.equals(record.getProvince())) {
+    public void map(Province key, InhabitantRecord record, Context<String, Long> context){
+        if (province.equals(key)) {
             context.emit(record.getDepartmentName(), 1L);
         }
     }
