@@ -79,4 +79,20 @@ public class ClientTest {
         Assert.assertEquals(0, result.get(3).getValue(),0.00000001);
         Assert.assertEquals(0, result.get(4).getValue(), 0.00000001);
     }
+
+    @Test
+    public void householdsPerRegion() throws ExecutionException, InterruptedException {
+        List<Map.Entry<Region,Integer>> result = query.householdsPerRegion();
+
+        Assert.assertEquals(47, (int) result.get(0).getValue());
+        Assert.assertEquals(Region.REGION_BUENOS_AIRES, result.get(0).getKey());
+        Assert.assertEquals(24, (int) result.get(1).getValue());
+        Assert.assertEquals(Region.REGION_DEL_NORTE_GRANDE_ARGENTINO, result.get(1).getKey());
+        Assert.assertEquals(19, (int) result.get(2).getValue());
+        Assert.assertEquals(Region.REGION_CENTRO, result.get(2).getKey());
+        Assert.assertEquals(7, (int) result.get(3).getValue());
+        Assert.assertEquals(Region.REGION_PATAGONICA, result.get(3).getKey());
+        Assert.assertEquals(3, (int) result.get(4).getValue());
+        Assert.assertEquals(Region.REGION_DEL_NUEVO_CUYO, result.get(4).getKey());
+    }
 }
