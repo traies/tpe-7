@@ -5,14 +5,14 @@ package ar.edu.itba.pod;
  */
 public enum Region {
     REGION_BUENOS_AIRES("Región Buenos Aires"),
-    REGION_DEL_NORTE_GRANDE_ARGENTINO("Región Del Norte Grande Argentino"),
     REGION_CENTRO("Región Centro"),
+    REGION_DEL_NORTE_GRANDE_ARGENTINO("Región Del Norte Grande Argentino"),
     REGION_DEL_NUEVO_CUYO("Región Del Nuevo Cuyo"),
     REGION_PATAGONICA("Región Patagónica");
 
     private String name;
 
-    private Region(String name){
+    Region(String name){
         this.name = name;
     }
 

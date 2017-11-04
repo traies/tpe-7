@@ -28,6 +28,9 @@ public class HouseholdRatioReducerFactory implements ReducerFactory<Region, Inha
 
         @Override
         public Double finalizeReduce() {
+            if (householdids.size() == 0) {
+                return 0.0;
+            }
             return (double) inhabitants / householdids.size();
         }
     }
