@@ -4,12 +4,20 @@ import com.hazelcast.mapreduce.Context;
 import com.hazelcast.mapreduce.Mapper;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
-public class DepartmentMapper implements Mapper<String, InhabitantRecord, String, Integer>, Serializable {
-    private static final Long ONE = 1L;
+/**
+ * La idea es emitir los pares <"Nombre de Departamento","Provincia">,
+ * para que luego el Reducer se encargue de sumar únicamente un valor
+ * de nombre de departamento por provincia en la que el mismo aparezca.
+ */
+public class DepartmentMapper implements Mapper<Province, InhabitantRecord, String, Province>, Serializable {
+
 
     @Override
-    public void map(String key, InhabitantRecord record, Context<String, Integer> context){
-        context.emit(record.getDepartmentName(),1);
+    public void map(Province p, InhabitantRecord record, Context<String, Province> context){
+        context.emit(record.getDepartmentName(), p);
     }
+
 }

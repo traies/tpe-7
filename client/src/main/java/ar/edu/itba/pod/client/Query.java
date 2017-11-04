@@ -77,6 +77,24 @@ final class Query {
         return future.get();
     }
 
+    List<Map.Entry<String, Long>> sharedDepartmentsAmongProvices(int n) throws  ExecutionException, InterruptedException {
+        ICompletableFuture<List<Map.Entry<String, Long>>> future = job
+                .mapper(new DepartmentMapper())
+                .reducer(new DepartmentCounterReducerFactory())
+                .submit(iterable -> {
+                    PriorityQueue<Map.Entry<String,Long>> s = new PriorityQueue<>((a, b) -> b.getValue().compareTo(a.getValue()));
+                    iterable.forEach(x-> {
+                        if(x.getValue() >= n){
+                            s.add(x);
+                        }
+                    });
+                    List<Map.Entry<String,Long>> ans = new ArrayList<>();
+                    IntStream.range(0, s.size()).forEach((x) -> ans.add(s.remove()));
+                    return ans;
+                });
+        return future.get();
+    }
+
     static <K, V> List<String> mapToStringList(Collection<Map.Entry<K,V>> collection) {
         return collection.stream().map(x -> String.format("%s, %s", x.getKey(), x.getValue())).collect(Collectors.toList());
     }

@@ -53,7 +53,7 @@ public class Client {
             String timeOutPath = properties.getProperty("timeOutPath", "time.txt");
 
             /* Optional Parameters */
-            Integer n = Integer.valueOf(properties.getProperty("n", "1"));
+            Integer n = Integer.valueOf(properties.getProperty("n", "5"));
             Province prov = Province.getProvince(properties.getProperty("prov", "Buenos Aires"));
             setLogger(timeOutPath);
             Job<Province, InhabitantRecord> job = hazelcastSetUp(addresses, inPath);
@@ -83,6 +83,11 @@ public class Client {
                 }
                 case 5: {
                     List<Map.Entry<Region, Double>> queryList = query.householdRatioPerRegion();
+                    list = Query.mapToStringList(queryList);
+                    break;
+                }
+                case 6: {
+                    List<Map.Entry<String, Long>> queryList = query.sharedDepartmentsAmongProvices(n);
                     list = Query.mapToStringList(queryList);
                     break;
                 }
