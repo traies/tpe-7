@@ -16,14 +16,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.7.12</slf4j.version>
     <logback.version>1.2.3</logback.version>
+    <hazelcast.version>3.8.6</hazelcast.version>
   </properties>
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>com.hazelcast</groupId>
-        <artifactId>hazelcast-all</artifactId>
-        <version>3.8.6</version>
-      </dependency>
       <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -50,7 +46,14 @@
     <dependency>
       <groupId>com.hazelcast</groupId>
       <artifactId>hazelcast-all</artifactId>
-      <version>3.8.6</version>
+      <version>${hazelcast.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hazelcast</groupId>
+      <artifactId>hazelcast</artifactId>
+      <version>${hazelcast.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
     </dependency>
 
 

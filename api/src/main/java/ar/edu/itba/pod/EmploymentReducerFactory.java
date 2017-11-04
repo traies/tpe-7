@@ -28,6 +28,9 @@ public class EmploymentReducerFactory implements ReducerFactory<Region, Inhabita
 
         @Override
         public Double finalizeReduce() {
+            if (employedPerRegion + unemployedPerRegion == 0) {
+                return 1.0;
+            }
             return unemployedPerRegion.doubleValue() / (unemployedPerRegion.doubleValue() + employedPerRegion.doubleValue());
         }
     }

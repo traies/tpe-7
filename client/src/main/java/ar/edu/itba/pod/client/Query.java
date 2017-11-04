@@ -29,7 +29,10 @@ final class Query {
                 .mapper(new ProvinceFilterMapper(prov))
                 .reducer(new InhabitantsPerDepartmentReducerFactory())
                 .submit(iterable -> {
-                    PriorityQueue<Map.Entry<String,Long>> entryPQueue = new PriorityQueue<>((a, b) -> b.getValue().compareTo(a.getValue()));
+                    PriorityQueue<Map.Entry<String,Long>> entryPQueue = new PriorityQueue<>((x, y) -> {
+                        int res = - x.getValue().compareTo(y.getValue());
+                        return res != 0 ? res : - x.getKey().compareTo(y.getKey());
+                    });
                     List<Map.Entry<String,Long>> ans = new ArrayList<>();
                     iterable.forEach(entryPQueue::add);
                     IntStream.range(0, Math.min(n,entryPQueue.size())).forEach((x) -> ans.add(entryPQueue.remove()));
@@ -45,7 +48,10 @@ final class Query {
                 .submit(iterable -> {
                     List<Map.Entry<Region, Double>> list = new ArrayList<>();
                     iterable.forEach(list::add);
-                    list.sort((x, y) -> - x.getValue().compareTo(y.getValue()));
+                    list.sort((x, y) -> {
+                        int res = - x.getValue().compareTo(y.getValue());
+                        return res != 0 ? res : - x.getKey().compareTo(y.getKey());
+                    });
                     return list;
                 });
         return future.get();
@@ -58,7 +64,10 @@ final class Query {
                 .submit(iterable -> {
                     List<Map.Entry<Region, Integer>> list = new ArrayList<>();
                     iterable.forEach(list::add);
-                    list.sort((x, y) -> - x.getValue().compareTo(y.getValue()));
+                    list.sort((x, y) -> {
+                        int res = - x.getValue().compareTo(y.getValue());
+                        return res != 0 ? res : - x.getKey().compareTo(y.getKey());
+                    });
                     return list;
                 });
         return future.get();
@@ -71,7 +80,10 @@ final class Query {
                 .submit(iterable -> {
                     List<Map.Entry<Region, Double>> list = new ArrayList<>();
                     iterable.forEach(list::add);
-                    list.sort((x, y) -> - x.getValue().compareTo(y.getValue()));
+                    list.sort((x, y) -> {
+                        int res = - x.getValue().compareTo(y.getValue());
+                        return res != 0 ? res : - x.getKey().compareTo(y.getKey());
+                    });
                     return list;
                 });
         return future.get();
