@@ -64,6 +64,19 @@ final class Query {
         return future.get();
     }
 
+    List<Map.Entry<Region, Double>> householdRatioPerRegion() throws ExecutionException, InterruptedException {
+        ICompletableFuture<List<Map.Entry<Region, Double>>> future = job
+                .mapper(new RegionMapper())
+                .reducer(new HouseholdRatioReducerFactory())
+                .submit(iterable -> {
+                    List<Map.Entry<Region, Double>> list = new ArrayList<>();
+                    iterable.forEach(list::add);
+                    list.sort((x, y) -> - x.getValue().compareTo(y.getValue()));
+                    return list;
+                });
+        return future.get();
+    }
+
     static <K, V> List<String> mapToStringList(Collection<Map.Entry<K,V>> collection) {
         return collection.stream().map(x -> String.format("%s, %s", x.getKey(), x.getValue())).collect(Collectors.toList());
     }

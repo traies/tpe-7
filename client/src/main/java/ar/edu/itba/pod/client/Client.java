@@ -81,6 +81,11 @@ public class Client {
                     list = Query.mapToStringList(queryList);
                     break;
                 }
+                case 5: {
+                    List<Map.Entry<Region, Double>> queryList = query.householdRatioPerRegion();
+                    list = Query.mapToStringList(queryList);
+                    break;
+                }
                 default:
                     list = new ArrayList<>();
                     logger.warn("invalid query requested.");
