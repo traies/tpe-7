@@ -96,13 +96,38 @@ final class Query {
                 .submit(iterable -> {
                     PriorityQueue<Map.Entry<String,Long>> s = new PriorityQueue<>((a, b) -> b.getValue().compareTo(a.getValue()));
                     iterable.forEach(x-> {
-                        if(x.getValue() >= n){
+                        if(x.getValue() >= n)
                             s.add(x);
-                        }
                     });
                     List<Map.Entry<String,Long>> ans = new ArrayList<>();
                     IntStream.range(0, s.size()).forEach((x) -> ans.add(s.remove()));
                     return ans;
+                });
+        return future.get();
+    }
+
+    List<Map.Entry<ProvincePair, Long>> pairsOfProvincesThatHaveSharedDepartments(int n) throws ExecutionException, InterruptedException{
+        ICompletableFuture<List<Map.Entry<ProvincePair,Long>>> future = job
+                .mapper(new DepartmentMapper())
+                .reducer(new SharedDepartmentsAmongProvincesReducerFactory())
+                .submit(iterable -> {
+
+                    Map<ProvincePair,Long> map = new HashMap<>();
+                    iterable.forEach(x -> x.getValue().stream().forEach(y -> {
+                        if(map.containsKey(y)){
+                            map.put(y,map.get(y)+1L);
+                        } else{
+                            map.put(y,1L);
+                        }
+                    }));
+                    PriorityQueue<Map.Entry<ProvincePair,Long>> pq = new PriorityQueue<>((a, b) -> b.getValue().compareTo(a.getValue()));
+
+                    map.entrySet().stream().filter(x->x.getValue()>=n).forEach(x->pq.add(x));
+
+                    List<Map.Entry<ProvincePair,Long>> ans = new ArrayList<>();
+                    IntStream.range(0, pq.size()).forEach((x) -> ans.add(pq.remove()));
+                    return ans;
+
                 });
         return future.get();
     }

@@ -1,9 +1,6 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.EmploymentCondition;
-import ar.edu.itba.pod.InhabitantRecord;
-import ar.edu.itba.pod.Province;
-import ar.edu.itba.pod.Region;
+import ar.edu.itba.pod.*;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -62,10 +59,11 @@ public class Client {
 
             timeLogger.info("Comienzo del trabajo map/reduce.");
             switch (queryNumber) {
-                case 1:
+                case 1: {
                     Map<Region, Long> queryMap = query.populationPerRegion();
                     list = Query.mapToStringList(queryMap.entrySet());
                     break;
+                }
                 case 2: {
                     List<Map.Entry<String, Long>> queryList = query.nDepartmentsByPopulation(prov, n);
                     list = Query.mapToStringList(queryList);
@@ -88,6 +86,11 @@ public class Client {
                 }
                 case 6: {
                     List<Map.Entry<String, Long>> queryList = query.sharedDepartmentsAmongProvices(n);
+                    list = Query.mapToStringList(queryList);
+                    break;
+                }
+                case 7: {
+                    List<Map.Entry<ProvincePair, Long>> queryList = query.pairsOfProvincesThatHaveSharedDepartments(n);
                     list = Query.mapToStringList(queryList);
                     break;
                 }
