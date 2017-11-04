@@ -7,15 +7,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by traie_000 on 11/4/2017.
+ * El HouseholdRatioReducer almacena los hogarId en un set para despues no contar repetidos, y al mismo tiempo
+ * va contando la cantidad de InhabitantRecords. Finalmente, retorna el ratio como la division entre la cantidad
+ * de habitantes total sobre la cantidad de hogares que hay, y asi obtiene el promedio de personas por hogar.
+ *
+ * @Author tomas raies
  */
 public class HouseholdRatioReducerFactory implements ReducerFactory<Region, InhabitantRecord, Double> {
     @Override
     public Reducer<InhabitantRecord, Double> newReducer(Region s) {
-        return new HouseholdRatioReducerFactory.HouseholdReducer();
+        return new HouseholdRatioReducerFactory.HouseholdRatioReducer();
     }
 
-    private class HouseholdReducer extends Reducer<InhabitantRecord, Double> {
+    private class HouseholdRatioReducer extends Reducer<InhabitantRecord, Double> {
 
         private Set<Integer> householdids = new HashSet<>();
         private Integer inhabitants = 0;
@@ -29,7 +33,7 @@ public class HouseholdRatioReducerFactory implements ReducerFactory<Region, Inha
         @Override
         public Double finalizeReduce() {
             if (householdids.size() == 0) {
-                return 0.0;
+                throw new RuntimeException("HouseholdReducer finished without reducing any value");
             }
             return (double) inhabitants / householdids.size();
         }

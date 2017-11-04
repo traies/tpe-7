@@ -3,8 +3,13 @@ package ar.edu.itba.pod;
 import com.hazelcast.mapreduce.Reducer;
 import com.hazelcast.mapreduce.ReducerFactory;
 
-import java.util.HashMap;
 
+/**
+ * El InhabitantPerDepartmentReducer simplemente cuenta las ocurrencias de InhabitantRecord para un nombre de
+ * departamento en particular, asi sacamos su poblacion.
+ *
+ * @Author nicolas marcantonio
+ */
 public class InhabitantsPerDepartmentReducerFactory implements ReducerFactory<String, Long , Long >{
 
     @Override

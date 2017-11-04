@@ -1,13 +1,9 @@
 package ar.edu.itba.pod;
 
-import com.hazelcast.core.ISet;
 import com.hazelcast.mapreduce.Reducer;
 import com.hazelcast.mapreduce.ReducerFactory;
 
-import javax.sound.midi.Soundbank;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 public class SharedDepartmentsAmongProvincesReducerFactory implements ReducerFactory<String, Province, Set<ProvincePair>> {

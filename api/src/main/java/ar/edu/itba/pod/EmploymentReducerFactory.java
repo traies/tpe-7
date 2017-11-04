@@ -4,7 +4,13 @@ import com.hazelcast.mapreduce.Reducer;
 import com.hazelcast.mapreduce.ReducerFactory;
 
 /**
- * Created by traie_000 on 11/3/2017.
+ * El EmploymentReducer lleva la cuenta de cuantos habitantes con condicion Empleado y Desempleado hay. Si el registro
+ * esta en condicion INACTIVO o DESCONOCIDO, se los ignora. Para finalizar, se divide la cantidad de Desempleados con
+ * la suma de Empleados y Desempleados, tal como dice la formula en la consigna.
+ * Para el caso en que la suma de Empleados y Desempleados sea cero, decidimos que el resultado sea tambien cero, porque
+ * es el valor que mejor se adecua a lo que quiero representar (si no hay poblacion activa, la tasa de desempleo es cero)
+ *
+ * @Author tomas raies
  */
 public class EmploymentReducerFactory implements ReducerFactory<Region, InhabitantRecord, Double> {
     @Override
@@ -29,7 +35,7 @@ public class EmploymentReducerFactory implements ReducerFactory<Region, Inhabita
         @Override
         public Double finalizeReduce() {
             if (employedPerRegion + unemployedPerRegion == 0) {
-                return 1.0;
+                return 0.0;
             }
             return unemployedPerRegion.doubleValue() / (unemployedPerRegion.doubleValue() + employedPerRegion.doubleValue());
         }

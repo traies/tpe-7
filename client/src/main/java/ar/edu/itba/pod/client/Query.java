@@ -16,6 +16,14 @@ final class Query {
         this.job = job;
     }
 
+
+    /**
+     * Para contar lo poblacion por regiones, el mapper mapea cada InhabitantRecord a la region de su Provincia, y
+     * luego el reducer cuenta la cantidad de InhabitantRecords por Region.
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     Map<Region, Long> populationPerRegion() throws ExecutionException, InterruptedException {
         ICompletableFuture<Map<Region, Long>> future = job
                 .mapper(new RegionMapper())
@@ -24,15 +32,34 @@ final class Query {
         return future.get();
     }
 
+    /**
+     *  Tomando la Provincia y la cantidad de departamentos por parametro, con ProvinceFilterMapper emitimos unicamente
+     *  los InhabitantRecords que corresponden a la provincia pasada como paramentro, y los emitmos con su departamento
+     *  como clave. Luego, InhabitantsPerDepartmentReducer cuenta la cantidad de habitantes para cada departamento.
+     *  Despues de esto, aplicamos un Collator que utiliza una PriorityQueue donde se almacenan todos los pares
+     *  departamento-poblacion, usando como comparador la poblacion en orden descendente. Luego, se toman los primeros n
+     *  valores que devuelve la PriorityQueue, donde n es el parametro.
+     *
+     *  Como alternativa al Collator implementado, una opcion podria haber sido ordenar todos los valores obtenidos segun
+     *  su poblacion, almacenandolos primero en una lista. Otra, podria haber sido recorrer la lista una sola vez, llevando
+     *  siempre los N departamentos con mayor poblacion hasta el momento, y comparando cada valor de la lista contra el
+     *  enesimo departamento con mayor poblacion, para decidir si reemplaza o no a alguno de los departamentos de la lista
+     *  de mayores.
+     *
+     *  Consideramos que nuestra solucion es un buen compromiso al ser computacionalmente menos compleja que la primera
+     *  opcion descripta, y menos engorrosa de implementar que la segunda.
+     * @param prov
+     * @param n
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     List<Map.Entry<String, Long>> nDepartmentsByPopulation(Province prov, int n) throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<String,Long>>> future = job
                 .mapper(new ProvinceFilterMapper(prov))
                 .reducer(new InhabitantsPerDepartmentReducerFactory())
                 .submit(iterable -> {
-                    PriorityQueue<Map.Entry<String,Long>> entryPQueue = new PriorityQueue<>((x, y) -> {
-                        int res = - x.getValue().compareTo(y.getValue());
-                        return res != 0 ? res : - x.getKey().compareTo(y.getKey());
-                    });
+                    PriorityQueue<Map.Entry<String,Long>> entryPQueue = new PriorityQueue<>(new ReverseEntryValueComparator<String, Long>());
                     List<Map.Entry<String,Long>> ans = new ArrayList<>();
                     iterable.forEach(entryPQueue::add);
                     IntStream.range(0, Math.min(n,entryPQueue.size())).forEach((x) -> ans.add(entryPQueue.remove()));
@@ -41,6 +68,14 @@ final class Query {
         return future.get();
     }
 
+    /**
+     * Primero, el mapper mapea cada InhabitantRecord a la region de su Provincia, y
+     * luego el reducer cuenta la cantidad de habitantes Empleados y Desempleados. Con esos datos, se calcula el
+     * ratio y luego se ordena los resultados por el ratio.
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     List<Map.Entry<Region, Double>> employmentPerRegion() throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<Region, Double>>> future = job
                 .mapper(new RegionMapper())
@@ -48,15 +83,20 @@ final class Query {
                 .submit(iterable -> {
                     List<Map.Entry<Region, Double>> list = new ArrayList<>();
                     iterable.forEach(list::add);
-                    list.sort((x, y) -> {
-                        int res = - x.getValue().compareTo(y.getValue());
-                        return res != 0 ? res : - x.getKey().compareTo(y.getKey());
-                    });
+                    list.sort(new ReverseEntryValueComparator<>());
                     return list;
                 });
         return future.get();
     }
 
+    /**
+     * Primero, el mapper mapea cada InhabitantRecord a la region de su Provincia, y
+     * luego el reducer va hasheando los hogarId para no obtener repetidos. Luego, retorna el tamanio del set y el
+     * Collator ordena los resultados obtenidos de mayor a menor segun la cantidad de hogares.
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     List<Map.Entry<Region, Integer>> householdsPerRegion() throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<Region, Integer>>> future = job
                 .mapper(new RegionMapper())
@@ -64,15 +104,20 @@ final class Query {
                 .submit(iterable -> {
                     List<Map.Entry<Region, Integer>> list = new ArrayList<>();
                     iterable.forEach(list::add);
-                    list.sort((x, y) -> {
-                        int res = - x.getValue().compareTo(y.getValue());
-                        return res != 0 ? res : - x.getKey().compareTo(y.getKey());
-                    });
+                    list.sort(new ReverseEntryValueComparator<>());
                     return list;
                 });
         return future.get();
     }
 
+    /**
+     * Similar al anterior, pero ahora se cuenta tambien la poblacion total de cada region, y luego se divide la
+     * poblacion de cada region sobre la cantidad de hogares, para obtener el promedio de personas por hogar. Tambien
+     * se ordena de mayor a menor por el promedio de personas por hogar.
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     List<Map.Entry<Region, Double>> householdRatioPerRegion() throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<Region, Double>>> future = job
                 .mapper(new RegionMapper())
@@ -80,10 +125,7 @@ final class Query {
                 .submit(iterable -> {
                     List<Map.Entry<Region, Double>> list = new ArrayList<>();
                     iterable.forEach(list::add);
-                    list.sort((x, y) -> {
-                        int res = - x.getValue().compareTo(y.getValue());
-                        return res != 0 ? res : - x.getKey().compareTo(y.getKey());
-                    });
+                    list.sort(new ReverseEntryValueComparator<>());
                     return list;
                 });
         return future.get();
@@ -134,5 +176,14 @@ final class Query {
 
     static <K, V> List<String> mapToStringList(Collection<Map.Entry<K,V>> collection) {
         return collection.stream().map(x -> String.format("%s, %s", x.getKey(), x.getValue())).collect(Collectors.toList());
+    }
+
+    private class ReverseEntryValueComparator<K extends Comparable<K>, V extends Comparable<V>> implements Comparator<Map.Entry<K, V>> {
+
+        @Override
+        public int compare(Map.Entry<K, V> x, Map.Entry<K, V> y) {
+            int res = - x.getValue().compareTo(y.getValue());
+            return res != 0 ? res : - x.getKey().compareTo(y.getKey());
+        }
     }
 }
