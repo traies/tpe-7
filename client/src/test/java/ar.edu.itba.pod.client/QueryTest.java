@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 public class QueryTest {
     private static Logger logger = LoggerFactory.getLogger(Client.class);
 
+    private final Double delta = 0.0000001;
     private Query query;
     private HazelcastInstance hz;
     private MultiMap<Province, InhabitantRecord> multiMap;
@@ -69,7 +70,7 @@ public class QueryTest {
 
     private<K> void assertOrderedDouble(List<Map.Entry<K, Double>> list, K[] expectedKeys, Double[] expectedValues, Double delta) {
         Assert.assertEquals(expectedKeys.length, expectedValues.length);
-
+        Assert.assertEquals(list.size(), expectedKeys.length);
         for (int i = 0; i < expectedKeys.length; i++) {
             Assert.assertEquals(expectedKeys[i], list.get(i).getKey());
             Assert.assertEquals(expectedValues[i], list.get(i).getValue(), delta);
@@ -152,7 +153,7 @@ public class QueryTest {
                         0.0,
                         0.0,
                 },
-                0.0000001
+                delta
         );
     }
 
@@ -183,6 +184,40 @@ public class QueryTest {
                         Region.REGION_CENTRO
                 },
                 new Integer[]{3, 1, 1, 1, 1}
+        );
+    }
+
+    @Test
+    public void householdRatioPerRegion() throws ExecutionException, InterruptedException {
+        insertInhabitantsRecords(
+                multiMap,
+                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.BUENOS_AIRES,},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 2, "aaaa", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 2, "aaaa", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 3, "aaaa", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 3, "aaaa", Province.BUENOS_AIRES}
+        );
+
+        List<Map.Entry<Region,Double>> result = query.householdRatioPerRegion();
+
+        assertOrderedDouble(
+                result,
+                new Region[] {
+                        Region.REGION_CENTRO,
+                        Region.REGION_BUENOS_AIRES,
+                        Region.REGION_DEL_NUEVO_CUYO,
+                },
+                new Double[] {
+                        3.0,
+                        5 / 3.0,
+                        1.0,
+                },
+                delta
         );
     }
 }
