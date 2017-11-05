@@ -73,24 +73,29 @@ public class QueryTest {
     public void populationPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
                 multiMap,
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.BUENOS_AIRES,},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.SANTA_FE},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.SANTIAGO_DEL_ESTERO},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.MENDOZA},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.NEUQUEN},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.RIO_NEGRO},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.BUENOS_AIRES}
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.BUENOS_AIRES,},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.SANTIAGO_DEL_ESTERO},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.NEUQUEN},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.RIO_NEGRO},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.BUENOS_AIRES}
         );
 
-        Map<Region, Long> result = query.populationPerRegion();
-        Assert.assertEquals(5, (long) result.get(Region.REGION_BUENOS_AIRES));
-        Assert.assertEquals(1, (long) result.get(Region.REGION_CENTRO));
-        Assert.assertEquals(1, (long) result.get(Region.REGION_DEL_NUEVO_CUYO));
-        Assert.assertEquals(2, (long) result.get(Region.REGION_PATAGONICA));
-        Assert.assertEquals(1, (long) result.get(Region.REGION_DEL_NORTE_GRANDE_ARGENTINO));
+        List<Map.Entry<Region, Long>> result = query.populationPerRegion();
+        assertOrdered(
+                result,
+                new Region[] {
+                        Region.REGION_BUENOS_AIRES,
+                        Region.REGION_PATAGONICA,
+                        Region.REGION_CENTRO,
+                        Region.REGION_DEL_NORTE_GRANDE_ARGENTINO,
+                        Region.REGION_DEL_NUEVO_CUYO,
+                },
+                new Long[] {5L, 2L, 1L, 1L, 1L});
     }
 
     @Test
@@ -99,11 +104,11 @@ public class QueryTest {
                 multiMap,
                 new Object[]{EmploymentCondition.INACTIVE, 0, "Rosario", Province.SANTA_FE,},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "San Cristobal", Province.SANTA_FE},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.TIERRA_DEL_FUEGO},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.TIERRA_DEL_FUEGO},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "Rosario", Province.SANTA_FE},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "San Cristobal", Province.SANTA_FE},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.NEUQUEN},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.NEUQUEN},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "Castellanos", Province.SANTA_FE},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "Rosario", Province.SANTA_FE},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "Rosario", Province.BUENOS_AIRES}
@@ -117,16 +122,16 @@ public class QueryTest {
     public void employmentPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
                 multiMap,
-                new Object[]{EmploymentCondition.EMPLOYED, 0, "aaaa", Province.BUENOS_AIRES,},
-                new Object[]{EmploymentCondition.EMPLOYED, 0, "aaaa", Province.BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
-                new Object[]{EmploymentCondition.EMPLOYED, 0, "aaaa", Province.SANTA_FE},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.SANTIAGO_DEL_ESTERO},
-                new Object[]{EmploymentCondition.UNEMPLOYED, 0, "aaaa", Province.MENDOZA},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.NEUQUEN},
-                new Object[]{EmploymentCondition.EMPLOYED, 0, "aaaa", Province.RIO_NEGRO},
-                new Object[]{EmploymentCondition.UNEMPLOYED, 0, "aaaa", Province.BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 0, "aaaa", Province.BUENOS_AIRES}
+                new Object[]{EmploymentCondition.EMPLOYED, 0, "", Province.BUENOS_AIRES,},
+                new Object[]{EmploymentCondition.EMPLOYED, 0, "", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
+                new Object[]{EmploymentCondition.EMPLOYED, 0, "", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.SANTIAGO_DEL_ESTERO},
+                new Object[]{EmploymentCondition.UNEMPLOYED, 0, "", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.NEUQUEN},
+                new Object[]{EmploymentCondition.EMPLOYED, 0, "", Province.RIO_NEGRO},
+                new Object[]{EmploymentCondition.UNEMPLOYED, 0, "", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.BUENOS_AIRES}
         );
         List<Map.Entry<Region,Double>> result = query.employmentPerRegion();
         assertOrderedDouble(
@@ -134,17 +139,11 @@ public class QueryTest {
                 new Region[]{
                         Region.REGION_DEL_NUEVO_CUYO,
                         Region.REGION_BUENOS_AIRES,
-                        Region.REGION_PATAGONICA,
-                        Region.REGION_DEL_NORTE_GRANDE_ARGENTINO,
                         Region.REGION_CENTRO,
+                        Region.REGION_DEL_NORTE_GRANDE_ARGENTINO,
+                        Region.REGION_PATAGONICA,
                 },
-                new Double[]{
-                        1.0,
-                        1.0/3,
-                        0.0,
-                        0.0,
-                        0.0,
-                },
+                new Double[]{1.0, 1.0/3, 0.0, 0.0, 0.0,},
                 delta
         );
     }
@@ -153,16 +152,16 @@ public class QueryTest {
     public void householdsPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
                 multiMap,
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.BUENOS_AIRES,},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 2, "aaaa", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.SANTA_FE},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.SANTIAGO_DEL_ESTERO},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.MENDOZA},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.NEUQUEN},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.RIO_NEGRO},
-                new Object[]{EmploymentCondition.INACTIVE, 3, "aaaa", Province.BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 3, "aaaa", Province.BUENOS_AIRES}
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES,},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 2, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.SANTIAGO_DEL_ESTERO},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.NEUQUEN},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.RIO_NEGRO},
+                new Object[]{EmploymentCondition.INACTIVE, 3, "", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 3, "", Province.BUENOS_AIRES}
         );
         List<Map.Entry<Region,Integer>> result = query.householdsPerRegion();
 
@@ -170,10 +169,10 @@ public class QueryTest {
                 result,
                 new Region[]{
                         Region.REGION_BUENOS_AIRES,
-                        Region.REGION_PATAGONICA,
-                        Region.REGION_DEL_NUEVO_CUYO,
+                        Region.REGION_CENTRO,
                         Region.REGION_DEL_NORTE_GRANDE_ARGENTINO,
-                        Region.REGION_CENTRO
+                        Region.REGION_DEL_NUEVO_CUYO,
+                        Region.REGION_PATAGONICA,
                 },
                 new Integer[]{3, 1, 1, 1, 1}
         );
@@ -183,16 +182,16 @@ public class QueryTest {
     public void householdRatioPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
                 multiMap,
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.BUENOS_AIRES,},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 2, "aaaa", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.SANTA_FE},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.SANTA_FE},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.MENDOZA},
-                new Object[]{EmploymentCondition.INACTIVE, 2, "aaaa", Province.MENDOZA},
-                new Object[]{EmploymentCondition.INACTIVE, 1, "aaaa", Province.SANTA_FE},
-                new Object[]{EmploymentCondition.INACTIVE, 3, "aaaa", Province.BUENOS_AIRES},
-                new Object[]{EmploymentCondition.INACTIVE, 3, "aaaa", Province.BUENOS_AIRES}
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES,},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 2, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 2, "", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 3, "", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 3, "", Province.BUENOS_AIRES}
         );
 
         List<Map.Entry<Region,Double>> result = query.householdRatioPerRegion();

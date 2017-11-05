@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Client {
     private static Logger logger = LoggerFactory.getLogger(Client.class);
@@ -49,6 +50,7 @@ public class Client {
             CommandLine cmd = parser.parse(options, args);
             Properties properties = cmd.getOptionProperties("D");
 
+            /* Required parameters */
             String[] addresses = properties.getProperty("address", "127.0.0.1").split(";");
             Integer queryNumber = Integer.valueOf(properties.getProperty("query", "1"));
             String inPath = properties.getProperty("inPath", "censo.csv");
@@ -58,45 +60,68 @@ public class Client {
             /* Optional Parameters */
             Integer n = Integer.valueOf(properties.getProperty("n", "5"));
             Province prov = Province.getProvince(properties.getProperty("prov", "Buenos Aires"));
+
+            /* Set up timing logger to output to file */
             setLogger(timeOutPath);
+
+            /* Set up Hazelcast, read CSV file and start Job */
             Job<Province, InhabitantRecord> job = hazelcastSetUp(addresses, inPath);
             Query query = new Query(job);
-            List<String> list;
 
+            List<String> list;
             timeLogger.info("Comienzo del trabajo map/reduce.");
             long start = System.currentTimeMillis();
+
+            /* Switch on map/reduce query to perform */
             switch (queryNumber) {
                 case 1: {
-                    Map<Region, Long> queryMap = query.populationPerRegion();
-                    list = Query.mapToStringList(queryMap.entrySet());
+                    /* Total​ ​de​ ​habitantes​ ​por​ ​región​ ​del​ ​país,​ ​ordenado​ ​descendentemente​ ​por​ ​el total​ ​de​ ​habitantes. */
+                    List<Map.Entry<Region, Long>> queryList = query.populationPerRegion();
+                    list = Query.mapToStringList(queryList);
                     break;
                 }
                 case 2: {
+                    /* Los​ ​"​n"​ ​departamentos​ ​más​ ​habitados​ ​de​ ​la​ ​provincia​ ​"p​rov". */
                     List<Map.Entry<String, Long>> queryList = query.nDepartmentsByPopulation(prov, n);
                     list = Query.mapToStringList(queryList);
                     break;
                 }
                 case 3: {
+                    /* Índice​ ​de​ ​desempleo​ ​por​ ​cada​ ​región​ ​del​ ​país,​ ​ordenado​ ​descendentemente por​ ​el​ ​índice​ ​de​
+                     *  ​desempleo
+                     */
                     List<Map.Entry<Region, Double>> queryList = query.employmentPerRegion();
                     list = Query.mapToStringList(queryList);
                     break;
                 }
                 case 4: {
+                    /* Total​ ​de​ ​hogares​ ​por​ ​cada​ ​región​ ​del​ ​país​ ​ordenado​ ​descendentemente​ ​por​ ​el total​ ​de​ ​hogares. */
                     List<Map.Entry<Region, Integer>> queryList = query.householdsPerRegion();
                     list = Query.mapToStringList(queryList);
                     break;
                 }
                 case 5: {
+                    /*  Por​ ​cada​ ​región​ ​del​ ​país​ ​el​ ​promedio​ ​de​ ​habitantes​ ​por​ ​hogar,​ ​ordenado descendentemente​ ​por​ ​el
+                     *​  ​promedio​ ​de​ ​habitantes,​ ​mostrándose​ ​siempre​ ​dos decimales.
+                     */
                     List<Map.Entry<Region, Double>> queryList = query.householdRatioPerRegion();
-                    list = Query.mapToStringList(queryList);
+                    list = queryList.stream()
+                            .map(x -> String.format("%s, %.2f", x.getKey(), x.getValue()) )
+                            .collect(Collectors.toList());
                     break;
                 }
                 case 6: {
+                    /* Los​ ​nombres​ ​de​ ​departamentos​ ​que​ ​aparecen​ ​en​ ​al​ ​menos​ ​"n​ "​ ​provincias, ordenado​ ​descendentemente​
+                     * por​ ​el​ ​número​ ​de​ ​apariciones
+                     */
                     List<Map.Entry<String, Long>> queryList = query.sharedDepartmentsAmongProvices(n);
                     list = Query.mapToStringList(queryList);
                     break;
                 }
                 case 7: {
+                    /* Los​ ​pares​ ​de​ ​provincias​ ​que​ ​comparten​ ​al​ ​menos​ ​"n​ "​ ​nombres​ ​de departamentos,​ ​ordenado​ ​
+                     * descendentemente​ ​por​ ​la​ ​cantidad​ ​de​ ​coincidencias
+                     */
                     List<Map.Entry<ProvincePair, Long>> queryList = query.pairsOfProvincesThatHaveSharedDepartments(n);
                     list = Query.mapToStringList(queryList);
                     break;
@@ -108,12 +133,15 @@ public class Client {
             }
             long end = System.currentTimeMillis();
             timeLogger.info("Fin del trabajo map/reduce. Tardo {} segundos", (end - start) / 1000.0);
+
+            /* Write results to output file */
             writeToOutput(list, outPath);
         } catch (ParseException e) {
             logger.error("ERROR", e);
         } finally {
-            multiMap.destroy();
-            hz.shutdown();
+            /* Close client Hazelcast instance */
+            Optional.ofNullable(multiMap).ifPresent(DistributedObject::destroy);
+            Optional.ofNullable(hz).ifPresent(HazelcastClient::shutdown);
         }
     }
 

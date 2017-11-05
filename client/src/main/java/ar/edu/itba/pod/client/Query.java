@@ -24,11 +24,16 @@ final class Query {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    Map<Region, Long> populationPerRegion() throws ExecutionException, InterruptedException {
-        ICompletableFuture<Map<Region, Long>> future = job
+    List<Map.Entry<Region, Long>> populationPerRegion() throws ExecutionException, InterruptedException {
+        ICompletableFuture<List<Map.Entry<Region, Long>>> future = job
                 .mapper(new RegionMapper())
                 .reducer(new RegionInhabitantsReducerFactory())
-                .submit();
+                .submit(iterable -> {
+                    List<Map.Entry<Region, Long>> list = new ArrayList<>();
+                    iterable.forEach(list::add);
+                    list.sort(new ReverseEntryValueComparator<>());
+                    return list;
+                });
         return future.get();
     }
 
@@ -178,12 +183,18 @@ final class Query {
         return collection.stream().map(x -> String.format("%s, %s", x.getKey(), x.getValue())).collect(Collectors.toList());
     }
 
+
+    /**
+     * This comparator has descending order on the value of the Entry. Key is secondary order, ascending.
+     * @param <K>
+     * @param <V>
+     */
     private class ReverseEntryValueComparator<K extends Comparable<K>, V extends Comparable<V>> implements Comparator<Map.Entry<K, V>> {
 
         @Override
         public int compare(Map.Entry<K, V> x, Map.Entry<K, V> y) {
             int res = - x.getValue().compareTo(y.getValue());
-            return res != 0 ? res : - x.getKey().compareTo(y.getKey());
+            return res != 0 ? res : x.getKey().compareTo(y.getKey());
         }
     }
 }
