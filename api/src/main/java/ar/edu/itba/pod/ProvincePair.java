@@ -12,16 +12,8 @@ public class ProvincePair implements Serializable{
         if(p1.equals(p2)){
             throw new IllegalArgumentException("Cannot build pair of the same province");
         }
-        this.p1 = p1.name().compareTo(p2.name()) < 0 ? p1:p2;
-        this.p2 = p1.name().compareTo(p2.name()) > 0 ? p1:p2;
-    }
-
-    public Province getP1() {
-        return p1;
-    }
-
-    public Province getP2() {
-        return p2;
+        this.p1 = p1.getName().compareTo(p2.getName()) < 0 ? p1:p2;
+        this.p2 = p1.getName().compareTo(p2.getName()) > 0 ? p1:p2;
     }
 
     @Override
@@ -44,6 +36,6 @@ public class ProvincePair implements Serializable{
 
     @Override
     public String toString() {
-        return p1.name() + " + " + p2.name();
+        return p1.getName() + " + " + p2.getName();
     }
 }

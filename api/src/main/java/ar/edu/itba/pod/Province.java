@@ -52,7 +52,7 @@ public enum Province {
         this.region = region;
     }
 
-    public String getProperName() {
+    public String getName(){
         return name;
     }
 

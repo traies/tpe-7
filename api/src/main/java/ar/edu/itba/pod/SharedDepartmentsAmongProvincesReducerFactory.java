@@ -4,6 +4,7 @@ import com.hazelcast.mapreduce.Reducer;
 import com.hazelcast.mapreduce.ReducerFactory;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class SharedDepartmentsAmongProvincesReducerFactory implements ReducerFactory<String, Province, Set<ProvincePair>> {
@@ -25,15 +26,14 @@ public class SharedDepartmentsAmongProvincesReducerFactory implements ReducerFac
         @Override
         public Set<ProvincePair> finalizeReduce() {
             Set<ProvincePair> ans = new HashSet<>();
-            /**
-             * Todo: Make more efficient
-             */
-            for (Province p: s){
-                for (Province o: s){
-                    if(!p.equals(o))
-                        ans.add(new ProvincePair(p,o));
-                }
+            Iterator<Province> provinceIterator = s.iterator();
+            while(provinceIterator.hasNext()){
+                Province p = provinceIterator.next();
+                provinceIterator.remove();
+                for(Province o : s)
+                    ans.add(new ProvincePair(p,o));
             }
+
             return ans;
         }
     }

@@ -73,7 +73,7 @@ public class InhabitantRecord implements DataSerializable {
         objectDataOutput.writeInt(condition.getNumber());
         objectDataOutput.writeInt(homeId);
         objectDataOutput.writeUTF(departmentName);
-        objectDataOutput.writeUTF(province.getProperName());
+        objectDataOutput.writeUTF(province.getName());
     }
 
     @Override
