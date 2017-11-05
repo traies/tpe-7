@@ -24,7 +24,7 @@ public class InhabitantsPerDepartmentReducerFactory implements ReducerFactory<St
 
         @Override
         public void reduce(Long c) {
-            count++;
+            count+=c;
         }
 
         @Override

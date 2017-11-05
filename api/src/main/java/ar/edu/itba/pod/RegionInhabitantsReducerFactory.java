@@ -8,20 +8,20 @@ import com.hazelcast.mapreduce.ReducerFactory;
  *
  * @Author nicolas marcantonio
  */
-public class RegionInhabitantsReducerFactory implements ReducerFactory<Region, InhabitantRecord, Long> {
+public class RegionInhabitantsReducerFactory implements ReducerFactory<Region, Long, Long> {
 
     @Override
-    public Reducer<InhabitantRecord, Long> newReducer(Region s) {
+    public Reducer<Long, Long> newReducer(Region s) {
         return new RegionInhabitantsReducer();
     }
 
-    private class RegionInhabitantsReducer extends Reducer<InhabitantRecord, Long> {
+    private class RegionInhabitantsReducer extends Reducer<Long, Long> {
 
         private Long inhabitantsPerRegion = 0L;
 
         @Override
-        public void reduce(InhabitantRecord value) {
-            inhabitantsPerRegion++;
+        public void reduce(Long value) {
+            inhabitantsPerRegion += value;
         }
 
         @Override

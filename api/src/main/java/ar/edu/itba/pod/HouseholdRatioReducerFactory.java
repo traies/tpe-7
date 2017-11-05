@@ -13,21 +13,21 @@ import java.util.Set;
  *
  * @Author tomas raies
  */
-public class HouseholdRatioReducerFactory implements ReducerFactory<Region, InhabitantRecord, Double> {
+public class HouseholdRatioReducerFactory implements ReducerFactory<Region, Pair<Set<Integer>, Integer>, Double> {
     @Override
-    public Reducer<InhabitantRecord, Double> newReducer(Region s) {
+    public Reducer<Pair<Set<Integer>, Integer>, Double> newReducer(Region s) {
         return new HouseholdRatioReducerFactory.HouseholdRatioReducer();
     }
 
-    private class HouseholdRatioReducer extends Reducer<InhabitantRecord, Double> {
+    private class HouseholdRatioReducer extends Reducer<Pair<Set<Integer>, Integer>, Double> {
 
         private Set<Integer> householdids = new HashSet<>();
         private Integer inhabitants = 0;
 
         @Override
-        public void reduce(InhabitantRecord value) {
-            householdids.add(value.getHomeId());
-            inhabitants++;
+        public void reduce(Pair<Set<Integer>, Integer> value) {
+            householdids.addAll(value.getFirstValue());
+            inhabitants += value.getSecondValue();
         }
 
         @Override
