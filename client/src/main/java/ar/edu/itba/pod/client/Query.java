@@ -27,6 +27,7 @@ final class Query {
     List<Map.Entry<Region, Long>> populationPerRegion() throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<Region, Long>>> future = job
                 .mapper(new RegionMapper())
+                .combiner(new CounterCombinerFactory<>())
                 .reducer(new RegionInhabitantsReducerFactory())
                 .submit(iterable -> {
                     List<Map.Entry<Region, Long>> list = new ArrayList<>();
@@ -61,7 +62,9 @@ final class Query {
      */
     List<Map.Entry<String, Long>> nDepartmentsByPopulation(Province prov, int n) throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<String,Long>>> future = job
-                .mapper(new ProvinceFilterMapper(prov))
+                .keyPredicate(prov::equals)
+                .mapper(new ProvinceFilterMapper())
+                .combiner(new CounterCombinerFactory<>())
                 .reducer(new InhabitantsPerDepartmentReducerFactory())
                 .submit(iterable -> {
                     PriorityQueue<Map.Entry<String,Long>> entryPQueue = new PriorityQueue<>(new ReverseEntryValueComparator<String, Long>());
@@ -84,6 +87,7 @@ final class Query {
     List<Map.Entry<Region, Double>> employmentPerRegion() throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<Region, Double>>> future = job
                 .mapper(new RegionMapper())
+                .combiner(new EmploymentCombinerFactory())
                 .reducer(new EmploymentReducerFactory())
                 .submit(iterable -> {
                     List<Map.Entry<Region, Double>> list = new ArrayList<>();
@@ -105,6 +109,7 @@ final class Query {
     List<Map.Entry<Region, Integer>> householdsPerRegion() throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<Region, Integer>>> future = job
                 .mapper(new RegionMapper())
+                .combiner(new HouseholdCombinerFactory())
                 .reducer(new HouseholdReducerFactory())
                 .submit(iterable -> {
                     List<Map.Entry<Region, Integer>> list = new ArrayList<>();
@@ -126,6 +131,7 @@ final class Query {
     List<Map.Entry<Region, Double>> householdRatioPerRegion() throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<Region, Double>>> future = job
                 .mapper(new RegionMapper())
+                .combiner(new HouseholdCombinerFactory())
                 .reducer(new HouseholdRatioReducerFactory())
                 .submit(iterable -> {
                     List<Map.Entry<Region, Double>> list = new ArrayList<>();

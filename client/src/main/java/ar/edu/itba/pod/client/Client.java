@@ -30,9 +30,9 @@ public class Client {
     private static ch.qos.logback.classic.Logger timeLogger = ((LoggerContext)LoggerFactory.getILoggerFactory()).getLogger(Client.class);
     private static HazelcastInstance hz;
     private static MultiMap<Province, InhabitantRecord> multiMap;
-    private static final ExecutorService pool = Executors.newFixedThreadPool(40);
+    private static final ExecutorService pool = Executors.newFixedThreadPool(50);
 
-    public static void main(String[] args) throws FileNotFoundException, ExecutionException, InterruptedException {
+    public static void main(String[] args) {
         logger.info("tpe-7 Client Starting ...");
 
         Options options = new Options();
@@ -136,7 +136,7 @@ public class Client {
 
             /* Write results to output file */
             writeToOutput(list, outPath);
-        } catch (ParseException e) {
+        } catch (ParseException | IOException | InterruptedException | ExecutionException e) {
             logger.error("ERROR", e);
         } finally {
             /* Close client Hazelcast instance */
@@ -145,14 +145,13 @@ public class Client {
         }
     }
 
-    static Job<Province, InhabitantRecord> hazelcastSetUp(String[] addresses, String path) {
+    static Job<Province, InhabitantRecord> hazelcastSetUp(String[] addresses, String path) throws IOException, InterruptedException {
         final ClientConfig ccfg = new ClientConfig();
         ccfg.getGroupConfig().setName("tpe-7");
         ccfg.getGroupConfig().setPassword("tpe-7");
         ccfg.getNetworkConfig().addAddress(addresses);
         hz = HazelcastClient.newHazelcastClient(ccfg);
         multiMap = hz.getMultiMap(String.format("censoPodGrupo7{%s}", new Date()));
-
         long start = System.currentTimeMillis();
         timeLogger.info("Inicio de la lectura del archivo.");
         try (Reader r = new FileReader(path)) {
@@ -173,8 +172,6 @@ public class Client {
                 pool.shutdownNow();
                 throw new RuntimeException("CSV Parsing took too long (more than 5 minutes).");
             }
-        } catch (IOException |  InterruptedException e) {
-            logger.error("ERROR", e);
         }
         long end = System.currentTimeMillis();
         timeLogger.info("Fin de la lectura del archivo. Tardo {} segundos" , (end - start) / 1000.0);

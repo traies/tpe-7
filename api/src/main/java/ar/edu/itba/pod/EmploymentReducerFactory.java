@@ -12,24 +12,21 @@ import com.hazelcast.mapreduce.ReducerFactory;
  *
  * @Author tomas raies
  */
-public class EmploymentReducerFactory implements ReducerFactory<Region, InhabitantRecord, Double> {
+public class EmploymentReducerFactory implements ReducerFactory<Region, Pair<Long, Long>, Double> {
     @Override
-    public Reducer<InhabitantRecord, Double> newReducer(Region s) {
+    public Reducer<Pair<Long, Long>, Double> newReducer(Region s) {
         return new EmploymentReducerFactory.EmploymentReducer();
     }
 
-    private class EmploymentReducer extends Reducer<InhabitantRecord, Double> {
+    private class EmploymentReducer extends Reducer<Pair<Long, Long>, Double> {
 
         private Long employedPerRegion = 0L;
         private Long unemployedPerRegion = 0L;
 
         @Override
-        public void reduce(InhabitantRecord value) {
-            if (EmploymentCondition.EMPLOYED.equals(value.getCondition())) {
-                employedPerRegion++;
-            } else if (EmploymentCondition.UNEMPLOYED.equals(value.getCondition())) {
-                unemployedPerRegion++;
-            }
+        public void reduce(Pair<Long, Long> value) {
+            unemployedPerRegion += value.getFirstValue();
+            employedPerRegion += value.getSecondValue();
         }
 
         @Override
