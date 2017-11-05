@@ -20,10 +20,16 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
     private static Logger logger = LoggerFactory.getLogger(Client.class);
     private static ch.qos.logback.classic.Logger timeLogger = ((LoggerContext)LoggerFactory.getILoggerFactory()).getLogger(Client.class);
+    private static HazelcastInstance hz;
+    private static MultiMap<Province, InhabitantRecord> multiMap;
+    private static final ExecutorService pool = Executors.newFixedThreadPool(40);
 
     public static void main(String[] args) throws FileNotFoundException, ExecutionException, InterruptedException {
         logger.info("tpe-7 Client Starting ...");
@@ -58,6 +64,7 @@ public class Client {
             List<String> list;
 
             timeLogger.info("Comienzo del trabajo map/reduce.");
+            long start = System.currentTimeMillis();
             switch (queryNumber) {
                 case 1: {
                     Map<Region, Long> queryMap = query.populationPerRegion();
@@ -99,11 +106,14 @@ public class Client {
                     logger.warn("invalid query requested.");
                     break;
             }
-            timeLogger.info("Fin del trabajo map/reduce.");
+            long end = System.currentTimeMillis();
+            timeLogger.info("Fin del trabajo map/reduce. Tardo {} segundos", (end - start) / 1000.0);
             writeToOutput(list, outPath);
-
         } catch (ParseException e) {
             logger.error("ERROR", e);
+        } finally {
+            multiMap.destroy();
+            hz.shutdown();
         }
     }
 
@@ -112,26 +122,35 @@ public class Client {
         ccfg.getGroupConfig().setName("tpe-7");
         ccfg.getGroupConfig().setPassword("tpe-7");
         ccfg.getNetworkConfig().addAddress(addresses);
-        final HazelcastInstance hz = HazelcastClient.newHazelcastClient(ccfg);
-        MultiMap<Province, InhabitantRecord> map = hz.getMultiMap("censoPodGrupo7");
+        hz = HazelcastClient.newHazelcastClient(ccfg);
+        multiMap = hz.getMultiMap(String.format("censoPodGrupo7{%s}", new Date()));
 
+        long start = System.currentTimeMillis();
         timeLogger.info("Inicio de la lectura del archivo.");
         try (Reader r = new FileReader(path)) {
             CSVFormat format = CSVFormat.RFC4180.withHeader(RecordEnum.class);
             for (CSVRecord record : format.parse(r)) {
-                EmploymentCondition condition = EmploymentCondition.getCondition(
-                        Integer.valueOf(record.get(RecordEnum.EMPLOYMENT_CONDITION))
-                );
-                Integer homeId = Integer.valueOf(record.get(RecordEnum.HOMEID));
-                String departmentName = record.get(RecordEnum.DEPARTMENT_NAME);
-                Province province = Province.getProvince(record.get(RecordEnum.PROVINCE_NAME));
-                map.put(province, new InhabitantRecord(condition, homeId, departmentName, province));
+                pool.execute(() -> {
+                    EmploymentCondition condition = EmploymentCondition.getCondition(
+                            Integer.valueOf(record.get(RecordEnum.EMPLOYMENT_CONDITION))
+                    );
+                    Integer homeId = Integer.valueOf(record.get(RecordEnum.HOMEID));
+                    String departmentName = record.get(RecordEnum.DEPARTMENT_NAME);
+                    Province province = Province.getProvince(record.get(RecordEnum.PROVINCE_NAME));
+                    multiMap.put(province, new InhabitantRecord(condition, homeId, departmentName, province));
+                });
             }
-        } catch (IOException e) {
+            pool.shutdown();
+            if (!pool.awaitTermination(5, TimeUnit.MINUTES)) {
+                pool.shutdownNow();
+                throw new RuntimeException("CSV Parsing took too long (more than 5 minutes).");
+            }
+        } catch (IOException |  InterruptedException e) {
             logger.error("ERROR", e);
         }
-        timeLogger.info("Fin de la lectura del archivo.");
-        KeyValueSource<Province, InhabitantRecord> source = KeyValueSource.fromMultiMap(map);
+        long end = System.currentTimeMillis();
+        timeLogger.info("Fin de la lectura del archivo. Tardo {} segundos" , (end - start) / 1000.0);
+        KeyValueSource<Province, InhabitantRecord> source = KeyValueSource.fromMultiMap(multiMap);
         JobTracker jobTracker = hz.getJobTracker("test");
         return jobTracker.newJob(source);
     }
@@ -150,7 +169,7 @@ public class Client {
     private static void setLogger(String timeOutPath) {
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext((LoggerContext)LoggerFactory.getILoggerFactory());
-        encoder.setPattern("%d{dd/mm/yyyy HH:mm:ss.SSS} %-5level[%thread] %logger{36}:%line - %msg %n");
+        encoder.setPattern("%d{dd/MM/yyyy HH:mm:ss.SSS} %-5level[%thread] %logger{36}:%line - %msg %n");
         encoder.start();
 
         FileAppender<ILoggingEvent> appender = new FileAppender<>();

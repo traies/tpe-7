@@ -198,7 +198,7 @@
 
     <multimap name="default">
         <backup-count>1</backup-count>
-        <value-collection-type>SET</value-collection-type>
+        <value-collection-type>LIST</value-collection-type>
     </multimap>
 
     <list name="default">
