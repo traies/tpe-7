@@ -136,6 +136,20 @@ final class Query {
         return future.get();
     }
 
+    /**
+     *
+     * La idea es que el Mapper emita pares <"Nombre de Departamento", "Provincia"> por cada
+     * entrada del censo. De tal forma, cada uno de los reducers de los departamentos encontrados
+     * mantiene un contador y un Set de las provincias ya contabilizadas (Para no contar más de una
+     * vez la aparición de un departamento en una provincia dada). Luego, un Collator se ocupa de filtrar
+     * los nombres de departamento cuyo número de coincidencias sea menor al "n" requerido, como así también
+     * se encarga de ordenar los resultados por dicho número de coincidencias.
+     *
+     * @param n
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     List<Map.Entry<String, Long>> sharedDepartmentsAmongProvices(int n) throws  ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<String, Long>>> future = job
                 .mapper(new DepartmentMapper())
@@ -153,6 +167,21 @@ final class Query {
         return future.get();
     }
 
+    /**
+     *
+     * Similarmente al caso anterior, el mapper se encarga de emitir pares <"Nombre de Departamento", "Provincia">.
+     * El reducer, en cambio, irá añadiendo a un Set las provincias en las que aparece un determinado departamento,
+     * para luego emitir un Set de ProvincePair (un par de provincias ordenado según el orden alfabético de las
+     * mismas).
+     *
+     * El collator se ocupará de contabilizar las múltiples apariciones de un ProvincePair entre los diferentes
+     * departamentos, eliminará los resultados con menor "n" que el requerido y los devolverá ordenados.
+     *
+     * @param n
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     List<Map.Entry<ProvincePair, Long>> pairsOfProvincesThatHaveSharedDepartments(int n) throws ExecutionException, InterruptedException{
         ICompletableFuture<List<Map.Entry<ProvincePair,Long>>> future = job
                 .mapper(new DepartmentMapper())
