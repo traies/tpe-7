@@ -30,6 +30,8 @@ public enum EmploymentCondition {
         }
     }
 
-
+    public int getNumber() {
+        return id;
+    }
 
 }

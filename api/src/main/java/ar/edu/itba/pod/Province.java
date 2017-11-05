@@ -52,7 +52,11 @@ public enum Province {
         this.region = region;
     }
 
+    public String getProperName() {
+        return name;
+    }
+
     public static Province getProvince(String s){
-        return Optional.ofNullable(map.get(s)).orElseThrow(IllegalArgumentException::new);
+        return Optional.ofNullable(map.get(s)).orElseThrow(() -> new IllegalArgumentException(String.format("Not a province: %s", s)));
     }
 }
