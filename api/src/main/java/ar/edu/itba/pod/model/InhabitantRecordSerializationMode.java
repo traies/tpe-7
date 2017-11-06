@@ -9,12 +9,12 @@ public enum InhabitantRecordSerializationMode implements InhabitantRecordMarshal
 
     /* EmploymentCondition, HomeId, DepartmentName, Province */
     QUERY_0(0x00, false, false, false, true),
-    QUERY_1(0x01, true, true, true, true),
-    QUERY_2(0x02, true, true, true, true),
-    QUERY_3(0x03, true, true, true, true),
-    QUERY_4(0x04, true, true, true, true),
-    QUERY_5(0x05, true, true, true, true),
-    QUERY_6(0x06, true, true, true, true);
+    QUERY_1(0x01, false, false, true, true),
+    QUERY_2(0x02, true, false, false, true),
+    QUERY_3(0x03, false, true, false, true),
+    QUERY_4(0x04, false, true, false, true),
+    QUERY_5(0x05, false, false, true, true),
+    QUERY_6(0x06, false, false, true, true);
 
     private int b;
     private boolean condition, homeId, departmentName, province;

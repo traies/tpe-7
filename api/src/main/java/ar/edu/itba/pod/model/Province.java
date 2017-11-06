@@ -66,4 +66,9 @@ public enum Province {
     public static Province getProvinceByOrdinal(Integer ordinal){
         return Optional.ofNullable(ordinalMap.get(ordinal)).orElseThrow(() -> new IllegalArgumentException(String.format("Not a province: %d", ordinal)));
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

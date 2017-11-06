@@ -12,7 +12,6 @@ import com.hazelcast.core.*;
 import com.hazelcast.mapreduce.Job;
 import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.KeyValueSource;
-import org.apache.commons.cli.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -37,31 +36,32 @@ public class Client {
     public static void main(String[] args) {
         logger.info("tpe-7 Client Starting ...");
 
-        Options options = new Options();
-        Option ips = Option.builder("D")
-                .required(true)
-                .valueSeparator('=')
-                .hasArgs()
-                .longOpt("address")
-                .build();
-        options.addOption(ips);
-
-        CommandLineParser parser = new DefaultParser();
 
         try {
-            CommandLine cmd = parser.parse(options, args);
-            Properties properties = cmd.getOptionProperties("D");
-
             /* Required parameters */
-            String[] addresses = properties.getProperty("address", "127.0.0.1").split(";");
-            Integer queryNumber = Integer.valueOf(properties.getProperty("query", "1"));
-            String inPath = properties.getProperty("inPath", "censo.csv");
-            String outPath = properties.getProperty("outPath", "output.txt");
-            String timeOutPath = properties.getProperty("timeOutPath", "time.txt");
+            String[] addresses = Optional.ofNullable(System.getProperty("addresses")).map( x -> x.split(";")).orElseThrow(() ->
+                    new MissingArgumentException("Missing addresses property")
+            );
+
+            Integer queryNumber = Optional.ofNullable(System.getProperty("query")).map(Integer::valueOf).orElseThrow(() ->
+                    new MissingArgumentException("Missing queryNumber property")
+            );
+
+            String inPath = Optional.ofNullable(System.getProperty("inPath")).orElseThrow(() ->
+                    new MissingArgumentException("Missing inPath property")
+            );
+
+            String outPath = Optional.ofNullable(System.getProperty("outPath")).orElseThrow(() ->
+                    new MissingArgumentException("Missing outPath property")
+            );
+            String timeOutPath =  Optional.ofNullable(System.getProperty("timeOutPath")).orElseThrow(() ->
+                    new MissingArgumentException("Missing timeOutPath property")
+            );
 
             /* Optional Parameters */
-            Integer n = Integer.valueOf(properties.getProperty("n", "5"));
-            Province prov = Province.getProvince(properties.getProperty("prov", "Buenos Aires"));
+            Integer n =  Optional.ofNullable(System.getProperty("n")).map(Integer::valueOf).orElse(null);
+
+            Province prov = Optional.ofNullable(System.getProperty("prov")).map(Province::getProvince).orElse(null);
 
             /* Set up timing logger to output to file */
             setLogger(timeOutPath);
@@ -106,7 +106,9 @@ public class Client {
                      *  ​desempleo
                      */
                     List<Map.Entry<Region, Double>> queryList = query.employmentPerRegion();
-                    list = Query.mapToStringList(queryList);
+                    list = queryList.stream()
+                            .map(x -> String.format(Locale.US, "%s, %.2f", x.getKey(), x.getValue()) )
+                            .collect(Collectors.toList());
                     break;
                 }
                 case 4: {
@@ -132,8 +134,9 @@ public class Client {
                      *​  ​promedio​ ​de​ ​habitantes,​ ​mostrándose​ ​siempre​ ​dos decimales.
                      */
                     List<Map.Entry<Region, Double>> queryList = query.householdRatioPerRegion();
+
                     list = queryList.stream()
-                            .map(x -> String.format("%s, %.2f", x.getKey(), x.getValue()) )
+                            .map(x -> String.format(Locale.US, "%s, %.2f", x.getKey(), x.getValue()) )
                             .collect(Collectors.toList());
                     break;
                 }
@@ -176,8 +179,10 @@ public class Client {
 
             /* Write results to output file */
             writeToOutput(list, outPath);
-        } catch (ParseException | IOException | InterruptedException | ExecutionException e) {
+        } catch (IOException | InterruptedException | ExecutionException e) {
             logger.error("ERROR", e);
+        } catch (MissingArgumentException e) {
+            logger.error("Error: {}", e.getMessage());
         } finally {
             /* Close client Hazelcast instance */
             Optional.ofNullable(map).ifPresent(DistributedObject::destroy);

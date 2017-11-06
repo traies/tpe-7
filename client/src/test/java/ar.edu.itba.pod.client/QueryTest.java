@@ -39,7 +39,7 @@ public class QueryTest {
         hz.shutdown();
     }
 
-    private void insertInhabitantsRecords(Map<Long, InhabitantRecord> map, Object[] ... records) {
+    private void insertInhabitantsRecords(Map<Long, InhabitantRecord> map, InhabitantRecordSerializationMode mode, Object[] ... records) {
         Long id = 0L;
         for (Object[] o : records) {
             InhabitantRecord record = new InhabitantRecord(
@@ -47,7 +47,7 @@ public class QueryTest {
                     (Integer) o[1],
                     (String) o[2],
                     (Province) o[3],
-                    InhabitantRecordSerializationMode.QUERY_6
+                    mode
                     );
             map.put(id++, record);
         }
@@ -75,6 +75,7 @@ public class QueryTest {
     public void populationPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
                 map,
+                InhabitantRecordSerializationMode.QUERY_0,
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.BUENOS_AIRES,},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.BUENOS_AIRES},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
@@ -104,6 +105,7 @@ public class QueryTest {
     public void nDepartmentsByPopulation() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
                 map,
+                InhabitantRecordSerializationMode.QUERY_1,
                 new Object[]{EmploymentCondition.INACTIVE, 0, "Rosario", Province.SANTA_FE,},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "San Cristobal", Province.SANTA_FE},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
@@ -124,6 +126,7 @@ public class QueryTest {
     public void employmentPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
                 map,
+                InhabitantRecordSerializationMode.QUERY_2,
                 new Object[]{EmploymentCondition.EMPLOYED, 0, "", Province.BUENOS_AIRES,},
                 new Object[]{EmploymentCondition.EMPLOYED, 0, "", Province.BUENOS_AIRES},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
@@ -154,6 +157,7 @@ public class QueryTest {
     public void householdsPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
                 map,
+                InhabitantRecordSerializationMode.QUERY_3,
                 new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES,},
                 new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES},
                 new Object[]{EmploymentCondition.INACTIVE, 2, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
@@ -184,6 +188,7 @@ public class QueryTest {
     public void householdRatioPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
                 map,
+                InhabitantRecordSerializationMode.QUERY_4,
                 new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES,},
                 new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES},
                 new Object[]{EmploymentCondition.INACTIVE, 2, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},

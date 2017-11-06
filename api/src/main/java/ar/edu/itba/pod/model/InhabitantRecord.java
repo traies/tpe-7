@@ -5,6 +5,8 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.DataSerializable;
 
 import java.io.IOException;
+import java.util.Optional;
+
 /**
  * Created by traies on 27/10/17.
  */
@@ -31,10 +33,6 @@ public class InhabitantRecord implements DataSerializable {
         this.serializationMode = serializationMode;
     }
 
-    public EmploymentCondition getCondition() {
-        return condition;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,16 +52,20 @@ public class InhabitantRecord implements DataSerializable {
         return serializationMode;
     }
 
+    public EmploymentCondition getCondition() {
+        return Optional.ofNullable(condition).orElseThrow(() -> new IllegalStateException("EmploymentCondition is not initialized"));
+    }
+
     public Integer getHomeId() {
-        return homeId;
+        return Optional.ofNullable(homeId).orElseThrow(() -> new IllegalStateException("HomeId is not initialized"));
     }
 
     public String getDepartmentName() {
-        return departmentName;
+        return Optional.ofNullable(departmentName).orElseThrow(() -> new IllegalStateException("Department is not initialized"));
     }
 
     public Province getProvince() {
-        return province;
+        return Optional.ofNullable(province).orElseThrow(() -> new IllegalStateException("Province is not initialized"));
     }
 
     public void setCondition(EmploymentCondition condition) {
