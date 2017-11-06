@@ -1,4 +1,4 @@
-package ar.edu.itba.pod;
+package ar.edu.itba.pod.model;
 
 /**
  * Created by traies on 27/10/17.

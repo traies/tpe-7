@@ -1,5 +1,7 @@
-package ar.edu.itba.pod;
+package ar.edu.itba.pod.mappers;
 
+import ar.edu.itba.pod.model.InhabitantRecord;
+import ar.edu.itba.pod.model.Region;
 import com.hazelcast.mapreduce.Context;
 import com.hazelcast.mapreduce.Mapper;
 

@@ -1,11 +1,11 @@
-package ar.edu.itba.pod;
+package ar.edu.itba.pod.mappers;
 
+import ar.edu.itba.pod.model.InhabitantRecord;
+import ar.edu.itba.pod.model.Province;
 import com.hazelcast.mapreduce.Context;
 import com.hazelcast.mapreduce.Mapper;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 public class DepartmentMapper implements Mapper<Long, InhabitantRecord, String, Province>, Serializable {
 

@@ -1,12 +1,13 @@
-package ar.edu.itba.pod;
+package ar.edu.itba.pod.reducers;
 
+import ar.edu.itba.pod.model.Province;
 import com.hazelcast.mapreduce.Reducer;
 import com.hazelcast.mapreduce.ReducerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class DepartmentCounterReducerFactory implements ReducerFactory<String, Province , Long> {
+public class DepartmentCounterReducerFactory implements ReducerFactory<String, Province, Long> {
 
     @Override
     public Reducer<Province, Long> newReducer(String s) {

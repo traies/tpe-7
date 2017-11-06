@@ -1,9 +1,11 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.*;
+import ar.edu.itba.pod.model.EmploymentCondition;
+import ar.edu.itba.pod.model.InhabitantRecord;
+import ar.edu.itba.pod.model.Province;
+import ar.edu.itba.pod.model.Region;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.MultiMap;
 import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.KeyValueSource;
 import com.hazelcast.test.TestHazelcastInstanceFactory;

@@ -1,5 +1,8 @@
-package ar.edu.itba.pod;
+package ar.edu.itba.pod.combiners;
 
+import ar.edu.itba.pod.model.InhabitantRecord;
+import ar.edu.itba.pod.model.Pair;
+import ar.edu.itba.pod.model.Region;
 import com.hazelcast.mapreduce.Combiner;
 import com.hazelcast.mapreduce.CombinerFactory;
 

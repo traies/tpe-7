@@ -1,5 +1,7 @@
-package ar.edu.itba.pod;
+package ar.edu.itba.pod.reducers;
 
+import ar.edu.itba.pod.model.Pair;
+import ar.edu.itba.pod.model.Region;
 import com.hazelcast.mapreduce.Reducer;
 import com.hazelcast.mapreduce.ReducerFactory;
 

@@ -1,6 +1,16 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.*;
+import ar.edu.itba.pod.combiners.CounterCombinerFactory;
+import ar.edu.itba.pod.combiners.EmploymentCombinerFactory;
+import ar.edu.itba.pod.combiners.HouseholdCombinerFactory;
+import ar.edu.itba.pod.mappers.DepartmentMapper;
+import ar.edu.itba.pod.mappers.ProvinceFilterMapper;
+import ar.edu.itba.pod.mappers.RegionMapper;
+import ar.edu.itba.pod.model.InhabitantRecord;
+import ar.edu.itba.pod.model.Province;
+import ar.edu.itba.pod.model.ProvincePair;
+import ar.edu.itba.pod.model.Region;
+import ar.edu.itba.pod.reducers.*;
 import com.hazelcast.core.ICompletableFuture;
 import com.hazelcast.mapreduce.Job;
 
