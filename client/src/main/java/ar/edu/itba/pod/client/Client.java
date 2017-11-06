@@ -160,8 +160,6 @@ public class Client {
         try (Reader r = new FileReader(path)) {
             CSVFormat format = CSVFormat.RFC4180.withHeader(RecordEnum.class);
             Long id = 0L;
-
-
             Iterator<CSVRecord> iterator = format.parse(r).iterator();
 
             while (iterator.hasNext()) {

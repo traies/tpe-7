@@ -34,6 +34,7 @@ public enum Province {
     TIERRA_DEL_FUEGO("Tierra del Fuego",Region.REGION_PATAGONICA);
 
     private static Map<String, Province> map = new HashMap<>();
+    private static Map<Integer, Province> ordinalMap = new HashMap<>();
 
     private String name;
     private Region region;
@@ -43,8 +44,10 @@ public enum Province {
     }
 
     static {
-        for(Province p:Province.values())
+        for(Province p:Province.values()) {
             map.put(p.name,p);
+            ordinalMap.put(p.ordinal(), p);
+        }
     }
 
     Province(String name,Region region){
@@ -58,5 +61,9 @@ public enum Province {
 
     public static Province getProvince(String s){
         return Optional.ofNullable(map.get(s)).orElseThrow(() -> new IllegalArgumentException(String.format("Not a province: %s", s)));
+    }
+
+    public static Province getProvinceByOrdinal(Integer ordinal){
+        return Optional.ofNullable(ordinalMap.get(ordinal)).orElseThrow(() -> new IllegalArgumentException(String.format("Not a province: %d", ordinal)));
     }
 }

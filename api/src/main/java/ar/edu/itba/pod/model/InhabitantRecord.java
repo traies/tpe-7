@@ -73,7 +73,7 @@ public class InhabitantRecord implements DataSerializable {
         objectDataOutput.writeInt(condition.getNumber());
         objectDataOutput.writeInt(homeId);
         objectDataOutput.writeUTF(departmentName);
-        objectDataOutput.writeUTF(province.getName());
+        objectDataOutput.writeInt(province.ordinal());
     }
 
     @Override
@@ -81,6 +81,6 @@ public class InhabitantRecord implements DataSerializable {
         condition = EmploymentCondition.getCondition(objectDataInput.readInt());
         homeId = objectDataInput.readInt();
         departmentName = objectDataInput.readUTF();
-        province = Province.getProvince(objectDataInput.readUTF());
+        province = Province.getProvinceByOrdinal(objectDataInput.readInt());
     }
 }
