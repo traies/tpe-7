@@ -14,6 +14,7 @@ import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.KeyValueSource;
 import org.apache.commons.cli.*;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,9 @@ public class Client {
     private static Logger logger = LoggerFactory.getLogger(Client.class);
     private static ch.qos.logback.classic.Logger timeLogger = ((LoggerContext)LoggerFactory.getILoggerFactory()).getLogger(Client.class);
     private static HazelcastInstance hz;
-    private static MultiMap<Province, InhabitantRecord> multiMap;
+    private static IMap<Long, InhabitantRecord> map;
     private static final ExecutorService pool = Executors.newFixedThreadPool(50);
+    private static final Long MAP_INSERT_CHUNK = 5000L;
 
     public static void main(String[] args) {
         logger.info("tpe-7 Client Starting ...");
@@ -66,7 +68,7 @@ public class Client {
             setLogger(timeOutPath);
 
             /* Set up Hazelcast, read CSV file and start Job */
-            Job<Province, InhabitantRecord> job = hazelcastSetUp(addresses, inPath);
+            Job<Long, InhabitantRecord> job = hazelcastSetUp(addresses, inPath);
             Query query = new Query(job);
 
             List<String> list;
@@ -141,43 +143,57 @@ public class Client {
             logger.error("ERROR", e);
         } finally {
             /* Close client Hazelcast instance */
-            Optional.ofNullable(multiMap).ifPresent(DistributedObject::destroy);
+            Optional.ofNullable(map).ifPresent(DistributedObject::destroy);
             Optional.ofNullable(hz).ifPresent(HazelcastClient::shutdown);
         }
     }
 
-    static Job<Province, InhabitantRecord> hazelcastSetUp(String[] addresses, String path) throws IOException, InterruptedException {
+    static Job<Long, InhabitantRecord> hazelcastSetUp(String[] addresses, String path) throws IOException, InterruptedException {
         final ClientConfig ccfg = new ClientConfig();
         GroupConfig groupConfig = ccfg.getGroupConfig();
         groupConfig.setName("tpe-7");
         groupConfig.setPassword("tpe-7");
         ccfg.getNetworkConfig().addAddress(addresses);
         hz = HazelcastClient.newHazelcastClient(ccfg);
-        multiMap = hz.getMultiMap(String.format("censoPodGrupo7{%s}", new Date()));
+        map = hz.getMap(String.format("censoPodGrupo7{%s}", new Date()));
         long start = System.currentTimeMillis();
         timeLogger.info("Inicio de la lectura del archivo.");
         try (Reader r = new FileReader(path)) {
             CSVFormat format = CSVFormat.RFC4180.withHeader(RecordEnum.class);
-            for (CSVRecord record : format.parse(r)) {
-                pool.execute(() -> {
+            Long id = 0L;
+
+
+            Iterator<CSVRecord> iterator = format.parse(r).iterator();
+
+            while (iterator.hasNext()) {
+                Map<Long, InhabitantRecord> recordMap = new HashMap<>();
+                for (int i = 0; i < MAP_INSERT_CHUNK  && iterator.hasNext(); i++) {
+                    CSVRecord record = iterator.next();
+                    Long current = id + i;
                     EmploymentCondition condition = EmploymentCondition.getCondition(
                             Integer.valueOf(record.get(RecordEnum.EMPLOYMENT_CONDITION))
                     );
                     Integer homeId = Integer.valueOf(record.get(RecordEnum.HOMEID));
                     String departmentName = record.get(RecordEnum.DEPARTMENT_NAME);
                     Province province = Province.getProvince(record.get(RecordEnum.PROVINCE_NAME));
-                    multiMap.put(province, new InhabitantRecord(condition, homeId, departmentName, province));
+                    recordMap.put(current, new InhabitantRecord(condition, homeId, departmentName, province));
+                }
+                pool.execute(() -> {
+                    map.putAll(recordMap);
                 });
+                id += MAP_INSERT_CHUNK;
             }
             pool.shutdown();
             if (!pool.awaitTermination(5, TimeUnit.MINUTES)) {
                 pool.shutdownNow();
                 throw new RuntimeException("CSV Parsing took too long (more than 5 minutes).");
             }
+
+
         }
         long end = System.currentTimeMillis();
         timeLogger.info("Fin de la lectura del archivo. Tardo {} segundos" , (end - start) / 1000.0);
-        KeyValueSource<Province, InhabitantRecord> source = KeyValueSource.fromMultiMap(multiMap);
+        KeyValueSource<Long, InhabitantRecord> source = KeyValueSource.fromMap(map);
         JobTracker jobTracker = hz.getJobTracker("test");
         return jobTracker.newJob(source);
     }

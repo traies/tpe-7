@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 final class Query {
-    private Job<Province, InhabitantRecord> job;
+    private Job<Long, InhabitantRecord> job;
 
-    Query(Job<Province, InhabitantRecord> job) {
+    Query(Job<Long, InhabitantRecord> job) {
         this.job = job;
     }
 
@@ -62,8 +62,7 @@ final class Query {
      */
     List<Map.Entry<String, Long>> nDepartmentsByPopulation(Province prov, int n) throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<String,Long>>> future = job
-                .keyPredicate(new ProvinceFilterPredicate(prov))
-                .mapper(new ProvinceFilterMapper())
+                .mapper(new ProvinceFilterMapper(prov))
                 .combiner(new CounterCombinerFactory<>())
                 .reducer(new InhabitantsPerDepartmentReducerFactory())
                 .submit(iterable -> {

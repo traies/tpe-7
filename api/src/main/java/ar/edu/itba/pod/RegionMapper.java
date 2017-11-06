@@ -12,11 +12,11 @@ import java.io.Serializable;
  * @See Province
  * @Author nicolas marcantonio
  */
-public class RegionMapper implements Mapper<Province, InhabitantRecord, Region, InhabitantRecord>, Serializable {
+public class RegionMapper implements Mapper<Long, InhabitantRecord, Region, InhabitantRecord>, Serializable {
     private static final Long ONE = 1L;
 
     @Override
-    public void map(Province province, InhabitantRecord record, Context<Region, InhabitantRecord> context){
-        context.emit(province.getRegion(),record);
+    public void map(Long id, InhabitantRecord record, Context<Region, InhabitantRecord> context){
+        context.emit(record.getProvince().getRegion(),record);
     }
 }

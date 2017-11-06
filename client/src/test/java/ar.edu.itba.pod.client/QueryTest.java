@@ -2,6 +2,7 @@ package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.*;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.KeyValueSource;
@@ -23,13 +24,13 @@ public class QueryTest {
     private final Double delta = 0.0000001;
     private Query query;
     private HazelcastInstance hz;
-    private MultiMap<Province, InhabitantRecord> multiMap;
+    private IMap<Long, InhabitantRecord> map;
 
     @Before
     public void hazelcastSetUp() throws FileNotFoundException {
         hz = new TestHazelcastInstanceFactory().newHazelcastInstance();
-        multiMap = hz.getMultiMap("censoPodGrupo7");
-        KeyValueSource<Province, InhabitantRecord> source = KeyValueSource.fromMultiMap(multiMap);
+        map = hz.getMap("censoPodGrupo7");
+        KeyValueSource<Long, InhabitantRecord> source = KeyValueSource.fromMap(map);
         JobTracker jobTracker = hz.getJobTracker("test");
         this.query = new Query(jobTracker.newJob(source));
     }
@@ -39,7 +40,8 @@ public class QueryTest {
         hz.shutdown();
     }
 
-    private void insertInhabitantsRecords(MultiMap<Province, InhabitantRecord> map, Object[] ... records) {
+    private void insertInhabitantsRecords(Map<Long, InhabitantRecord> map, Object[] ... records) {
+        Long id = 0L;
         for (Object[] o : records) {
             InhabitantRecord record = new InhabitantRecord(
                     (EmploymentCondition) o[0],
@@ -47,7 +49,7 @@ public class QueryTest {
                     (String) o[2],
                     (Province) o[3]
                     );
-            map.put(record.getProvince(), record);
+            map.put(id++, record);
         }
     }
 
@@ -72,7 +74,7 @@ public class QueryTest {
     @Test
     public void populationPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
-                multiMap,
+                map,
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.BUENOS_AIRES,},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.BUENOS_AIRES},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
@@ -101,7 +103,7 @@ public class QueryTest {
     @Test
     public void nDepartmentsByPopulation() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
-                multiMap,
+                map,
                 new Object[]{EmploymentCondition.INACTIVE, 0, "Rosario", Province.SANTA_FE,},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "San Cristobal", Province.SANTA_FE},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
@@ -121,7 +123,7 @@ public class QueryTest {
     @Test
     public void employmentPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
-                multiMap,
+                map,
                 new Object[]{EmploymentCondition.EMPLOYED, 0, "", Province.BUENOS_AIRES,},
                 new Object[]{EmploymentCondition.EMPLOYED, 0, "", Province.BUENOS_AIRES},
                 new Object[]{EmploymentCondition.INACTIVE, 0, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
@@ -151,7 +153,7 @@ public class QueryTest {
     @Test
     public void householdsPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
-                multiMap,
+                map,
                 new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES,},
                 new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES},
                 new Object[]{EmploymentCondition.INACTIVE, 2, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
@@ -181,7 +183,7 @@ public class QueryTest {
     @Test
     public void householdRatioPerRegion() throws ExecutionException, InterruptedException {
         insertInhabitantsRecords(
-                multiMap,
+                map,
                 new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES,},
                 new Object[]{EmploymentCondition.INACTIVE, 1, "", Province.BUENOS_AIRES},
                 new Object[]{EmploymentCondition.INACTIVE, 2, "", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
