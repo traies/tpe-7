@@ -1,9 +1,6 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.model.EmploymentCondition;
-import ar.edu.itba.pod.model.InhabitantRecord;
-import ar.edu.itba.pod.model.Province;
-import ar.edu.itba.pod.model.Region;
+import ar.edu.itba.pod.model.*;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.mapreduce.JobTracker;
@@ -49,7 +46,8 @@ public class QueryTest {
                     (EmploymentCondition) o[0],
                     (Integer) o[1],
                     (String) o[2],
-                    (Province) o[3]
+                    (Province) o[3],
+                    InhabitantRecordSerializationMode.QUERY_6
                     );
             map.put(id++, record);
         }

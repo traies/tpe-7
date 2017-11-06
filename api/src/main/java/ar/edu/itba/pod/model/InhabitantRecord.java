@@ -12,25 +12,23 @@ public class InhabitantRecord implements DataSerializable {
     private static int ID = 0;
 
     private int id;
-
     private EmploymentCondition condition ;
-
     private Integer homeId;
-
     private String departmentName;
-
     private Province province;
+    private InhabitantRecordSerializationMode serializationMode;
 
     public InhabitantRecord() {
 
     }
 
-    public InhabitantRecord(EmploymentCondition condition, Integer homeId, String departmentName, Province province) {
+    public InhabitantRecord(EmploymentCondition condition, Integer homeId, String departmentName, Province province, InhabitantRecordSerializationMode serializationMode) {
         id = ID++;
         this.condition = condition;
         this.homeId = homeId;
         this.departmentName = departmentName;
         this.province = province;
+        this.serializationMode = serializationMode;
     }
 
     public EmploymentCondition getCondition() {
@@ -52,6 +50,10 @@ public class InhabitantRecord implements DataSerializable {
         return id;
     }
 
+    public InhabitantRecordSerializationMode getSerializationMode() {
+        return serializationMode;
+    }
+
     public Integer getHomeId() {
         return homeId;
     }
@@ -64,23 +66,34 @@ public class InhabitantRecord implements DataSerializable {
         return province;
     }
 
+    public void setCondition(EmploymentCondition condition) {
+        this.condition = condition;
+    }
+
+    public void setHomeId(Integer homeId) {
+        this.homeId = homeId;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
+    public void setProvince(Province province) {
+        this.province = province;
+    }
+
     public String toString() {
         return "[ Estado:"+this.condition.name()+", Hogar: "+this.homeId+", Departamento: "+this.departmentName+", Provincia: "+this.province.name()+"]";
     }
 
     @Override
     public void writeData(ObjectDataOutput objectDataOutput) throws IOException {
-        objectDataOutput.writeInt(condition.getNumber());
-        objectDataOutput.writeInt(homeId);
-        objectDataOutput.writeUTF(departmentName);
-        objectDataOutput.writeInt(province.ordinal());
+        getSerializationMode().serialize(this, objectDataOutput);
     }
 
     @Override
     public void readData(ObjectDataInput objectDataInput) throws IOException {
-        condition = EmploymentCondition.getCondition(objectDataInput.readInt());
-        homeId = objectDataInput.readInt();
-        departmentName = objectDataInput.readUTF();
-        province = Province.getProvinceByOrdinal(objectDataInput.readInt());
+        serializationMode = InhabitantRecordSerializationMode.getMode(objectDataInput.readByte());
+        serializationMode.deserialize(this, objectDataInput);
     }
 }
