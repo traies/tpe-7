@@ -62,7 +62,7 @@ final class Query {
      */
     List<Map.Entry<String, Long>> nDepartmentsByPopulation(Province prov, int n) throws ExecutionException, InterruptedException {
         ICompletableFuture<List<Map.Entry<String,Long>>> future = job
-                .keyPredicate(prov::equals)
+                .keyPredicate(new ProvinceFilterPredicate(prov))
                 .mapper(new ProvinceFilterMapper())
                 .combiner(new CounterCombinerFactory<>())
                 .reducer(new InhabitantsPerDepartmentReducerFactory())

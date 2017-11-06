@@ -7,6 +7,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.*;
 import com.hazelcast.mapreduce.Job;
 import com.hazelcast.mapreduce.JobTracker;
@@ -147,8 +148,9 @@ public class Client {
 
     static Job<Province, InhabitantRecord> hazelcastSetUp(String[] addresses, String path) throws IOException, InterruptedException {
         final ClientConfig ccfg = new ClientConfig();
-        ccfg.getGroupConfig().setName("tpe-7");
-        ccfg.getGroupConfig().setPassword("tpe-7");
+        GroupConfig groupConfig = ccfg.getGroupConfig();
+        groupConfig.setName("tpe-7");
+        groupConfig.setPassword("tpe-7");
         ccfg.getNetworkConfig().addAddress(addresses);
         hz = HazelcastClient.newHazelcastClient(ccfg);
         multiMap = hz.getMultiMap(String.format("censoPodGrupo7{%s}", new Date()));
