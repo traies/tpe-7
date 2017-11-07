@@ -63,6 +63,20 @@ public class Client {
 
             Province prov = Optional.ofNullable(System.getProperty("prov")).map(Province::getProvince).orElse(null);
 
+            /* Check queries 2, 6 and 7 have necessary parameters */
+            switch (queryNumber) {
+                case 2:
+                    if (prov == null) {
+                        throw new MissingArgumentException("Query 2 needs prov property");
+                    }
+                case 6:
+                case 7:
+                    if (n == null) {
+                        throw new MissingArgumentException(String.format("Query %d needs n property", queryNumber));
+                    }
+                    break;
+            }
+
             /* Set up timing logger to output to file */
             setLogger(timeOutPath);
 
