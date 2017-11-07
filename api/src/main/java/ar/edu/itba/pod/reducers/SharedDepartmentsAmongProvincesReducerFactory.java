@@ -9,20 +9,20 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class SharedDepartmentsAmongProvincesReducerFactory implements ReducerFactory<String, Province, Set<ProvincePair>> {
+public class SharedDepartmentsAmongProvincesReducerFactory implements ReducerFactory<String, Set<Province>, Set<ProvincePair>> {
 
     @Override
-    public Reducer<Province, Set<ProvincePair>> newReducer(String s ) {
-        return new EchoReducer();
+    public Reducer<Set<Province>, Set<ProvincePair>> newReducer(String s ) {
+        return new SharedDepartmentsAmongProvincesReducer();
     }
 
-    private class EchoReducer extends Reducer<Province, Set<ProvincePair>> {
+    private class SharedDepartmentsAmongProvincesReducer extends Reducer<Set<Province>, Set<ProvincePair>> {
 
         private Set<Province> s = new HashSet<>();
 
         @Override
-        public void reduce(Province value) {
-            s.add(value);
+        public void reduce(Set<Province> value) {
+            s.addAll(value);
         }
 
         @Override

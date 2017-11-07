@@ -202,6 +202,7 @@ final class Query {
     List<Map.Entry<ProvincePair, Long>> pairsOfProvincesThatHaveSharedDepartments(int n) throws ExecutionException, InterruptedException{
         ICompletableFuture<List<Map.Entry<ProvincePair,Long>>> future = job
                 .mapper(new DepartmentMapper())
+                .combiner(new DepartmentCounterCombinerFactory())
                 .reducer(new SharedDepartmentsAmongProvincesReducerFactory())
                 .submit(iterable -> {
 
@@ -213,7 +214,7 @@ final class Query {
                             map.put(y,1L);
                         }
                     }));
-                    PriorityQueue<Map.Entry<ProvincePair,Long>> pq = new PriorityQueue<>((a, b) -> b.getValue().compareTo(a.getValue()));
+                    PriorityQueue<Map.Entry<ProvincePair,Long>> pq = new PriorityQueue<>(new ReverseEntryValueComparator<>());
 
                     map.entrySet().stream().filter(x->x.getValue()>=n).forEach(x->pq.add(x));
 

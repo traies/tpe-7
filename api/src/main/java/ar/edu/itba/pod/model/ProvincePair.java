@@ -2,13 +2,16 @@ package ar.edu.itba.pod.model;
 
 import java.io.Serializable;
 
-public class ProvincePair implements Serializable{
-
-    
-
+public class ProvincePair implements Serializable, Comparable<ProvincePair>{
     private Province p1,p2;
 
-    public ProvincePair(Province p1,Province p2){
+    @Override
+    public int compareTo(ProvincePair o) {
+        int res = p1.getName().compareTo(o.p1.getName());
+        return res != 0 ? res : p2.getName().compareTo(o.p2.getName());
+    }
+
+    public ProvincePair(Province p1, Province p2){
         if(p1.equals(p2)){
             throw new IllegalArgumentException("Cannot build pair of the same province");
         }
