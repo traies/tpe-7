@@ -16,4 +16,8 @@ En "server/target/tpe-7-server-1.0-SNAPSHOT/" ejecutar ./run_server.sh
 
 # EJECUCIÓN DEL CLIENTE
 
-TODO by Marcantonio
+En "client/target/tpe-7-client-1.0-SNAPSHOT" ejecutar, por ejemplo: 
+
+java   -Daddresses="192.168.0.31" -DinPath=/home/nicolas/tpe-7/census100.csv -Dquery=1 -DoutPath=benchmark/output1.csv   -DtimeOutPath=benchmark/time1.csv  -cp 'lib/jars/*' "ar.edu.itba.pod.client.Client"
+
+para correr la query 1 
