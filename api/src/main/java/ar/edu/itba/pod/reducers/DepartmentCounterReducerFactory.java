@@ -7,30 +7,25 @@ import com.hazelcast.mapreduce.ReducerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DepartmentCounterReducerFactory implements ReducerFactory<String, Province, Long> {
+public class DepartmentCounterReducerFactory implements ReducerFactory<String, Set<Province>, Integer> {
 
     @Override
-    public Reducer<Province, Long> newReducer(String s) {
-        return new EchoReducer();
+    public Reducer<Set<Province>, Integer> newReducer(String s) {
+        return new DepartmentCounterReducer();
     }
 
-    private class EchoReducer extends Reducer<Province, Long> {
+    private class DepartmentCounterReducer extends Reducer<Set<Province>, Integer> {
 
         Set<Province> s = new HashSet<>();
 
-        private Long appearances = 0L;
-
         @Override
-        public void reduce(Province value) {
-            if(!s.contains(value)) {
-                s.add(value);
-                appearances++;
-            }
+        public void reduce(Set<Province> value) {
+            s.addAll(value);
         }
 
         @Override
-        public Long finalizeReduce() {
-            return appearances;
+        public Integer finalizeReduce() {
+            return s.size();
         }
     }
 }

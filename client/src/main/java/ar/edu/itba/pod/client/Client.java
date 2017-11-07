@@ -139,7 +139,7 @@ public class Client {
                     /* Los​ ​nombres​ ​de​ ​departamentos​ ​que​ ​aparecen​ ​en​ ​al​ ​menos​ ​"n​ "​ ​provincias, ordenado​ ​descendentemente​
                      * por​ ​el​ ​número​ ​de​ ​apariciones
                      */
-                    List<Map.Entry<String, Long>> queryList = query.sharedDepartmentsAmongProvices(n);
+                    List<Map.Entry<String, Integer>> queryList = query.sharedDepartmentsAmongProvices(n);
                     list = Query.mapToStringList(queryList);
                     break;
                 }

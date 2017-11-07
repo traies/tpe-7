@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.combiners.CounterCombinerFactory;
+import ar.edu.itba.pod.combiners.DepartmentCounterCombinerFactory;
 import ar.edu.itba.pod.combiners.EmploymentCombinerFactory;
 import ar.edu.itba.pod.combiners.HouseholdCombinerFactory;
 import ar.edu.itba.pod.mappers.DepartmentMapper;
@@ -165,17 +166,18 @@ final class Query {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    List<Map.Entry<String, Long>> sharedDepartmentsAmongProvices(int n) throws  ExecutionException, InterruptedException {
-        ICompletableFuture<List<Map.Entry<String, Long>>> future = job
+    List<Map.Entry<String, Integer>> sharedDepartmentsAmongProvices(int n) throws  ExecutionException, InterruptedException {
+        ICompletableFuture<List<Map.Entry<String, Integer>>> future = job
                 .mapper(new DepartmentMapper())
+                .combiner(new DepartmentCounterCombinerFactory())
                 .reducer(new DepartmentCounterReducerFactory())
                 .submit(iterable -> {
-                    PriorityQueue<Map.Entry<String,Long>> s = new PriorityQueue<>((a, b) -> b.getValue().compareTo(a.getValue()));
+                    PriorityQueue<Map.Entry<String,Integer>> s = new PriorityQueue<>((a, b) -> b.getValue().compareTo(a.getValue()));
                     iterable.forEach(x-> {
                         if(x.getValue() >= n)
                             s.add(x);
                     });
-                    List<Map.Entry<String,Long>> ans = new ArrayList<>();
+                    List<Map.Entry<String,Integer>> ans = new ArrayList<>();
                     IntStream.range(0, s.size()).forEach((x) -> ans.add(s.remove()));
                     return ans;
                 });
