@@ -18,6 +18,6 @@ En "server/target/tpe-7-server-1.0-SNAPSHOT/" ejecutar ./run_server.sh
 
 En "client/target/tpe-7-client-1.0-SNAPSHOT" ejecutar, por ejemplo: 
 
-java   -Daddresses="192.168.0.31" -DinPath=/home/nicolas/tpe-7/census100.csv -Dquery=1 -DoutPath=benchmark/output1.csv   -DtimeOutPath=benchmark/time1.csv  -cp 'lib/jars/*' "ar.edu.itba.pod.client.Client"
+java   -Daddresses="192.168.0.31" -DinPath="path al archivo del censo" -Dquery=1 -DoutPath=benchmark/output1.csv   -DtimeOutPath=benchmark/time1.csv  -cp 'lib/jars/*' "ar.edu.itba.pod.client.Client"
 
 para correr la query 1 
