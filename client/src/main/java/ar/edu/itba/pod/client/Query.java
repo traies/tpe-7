@@ -172,7 +172,7 @@ final class Query {
                 .combiner(new DepartmentCounterCombinerFactory())
                 .reducer(new DepartmentCounterReducerFactory())
                 .submit(iterable -> {
-                    PriorityQueue<Map.Entry<String,Integer>> s = new PriorityQueue<>((a, b) -> b.getValue().compareTo(a.getValue()));
+                    PriorityQueue<Map.Entry<String,Integer>> s = new PriorityQueue<>(new ReverseEntryValueComparator<String, Integer>());
                     iterable.forEach(x-> {
                         if(x.getValue() >= n)
                             s.add(x);

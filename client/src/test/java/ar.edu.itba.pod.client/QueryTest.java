@@ -214,4 +214,69 @@ public class QueryTest {
                 delta
         );
     }
+
+    @Test
+    public void sharedDepartments() throws ExecutionException, InterruptedException {
+        insertInhabitantsRecords(
+                map,
+                InhabitantRecordSerializationMode.QUERY_6,
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.BUENOS_AIRES,},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Arrabales", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Cochabamba", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Cochabamba", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Pergamino", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Pergamino", Province.TIERRA_DEL_FUEGO}
+        );
+
+        List<Map.Entry<String,Integer>> result = query.sharedDepartmentsAmongProvices(0);
+
+        assertOrdered(
+                result,
+                new String[] {
+                        "Capital",
+                        "Cochabamba",
+                        "Pergamino",
+                        "Arrabales"
+                },
+                new Integer[] {4, 2, 2, 1}
+        );
+    }
+
+    @Test
+    public void pairsOfProvincesThatHaveSharedDepartments() throws ExecutionException, InterruptedException {
+        insertInhabitantsRecords(
+                map,
+                InhabitantRecordSerializationMode.QUERY_6,
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.BUENOS_AIRES,},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Arrabales", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Cochabamba", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Cochabamba", Province.MENDOZA},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Pergamino", Province.SANTA_FE},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Capital", Province.BUENOS_AIRES},
+                new Object[]{EmploymentCondition.INACTIVE, 0, "Pergamino", Province.TIERRA_DEL_FUEGO}
+        );
+
+        List<Map.Entry<ProvincePair,Long>> result = query.pairsOfProvincesThatHaveSharedDepartments(0);
+
+        assertOrdered(
+                result,
+                new ProvincePair[] {
+                        new ProvincePair(Province.SANTA_FE, Province.MENDOZA),
+                        new ProvincePair(Province.BUENOS_AIRES, Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES),
+                        new ProvincePair(Province.BUENOS_AIRES, Province.MENDOZA),
+                        new ProvincePair(Province.BUENOS_AIRES, Province.SANTA_FE),
+                        new ProvincePair(Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES, Province.MENDOZA),
+                        new ProvincePair(Province.CIUDAD_AUTONOMA_DE_BUENOS_AIRES, Province.SANTA_FE),
+                        new ProvincePair(Province.TIERRA_DEL_FUEGO, Province.SANTA_FE),
+                },
+                new Long[] {2L, 1L, 1L, 1L, 1L, 1L, 1L }
+        );
+    }
 }
