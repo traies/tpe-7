@@ -75,47 +75,40 @@ public class Client {
                         throw new MissingArgumentException(String.format("Query %d needs n property", queryNumber));
                     }
                     break;
+                case 1:
+                case 3:
+                case 4:
+                case 5:
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format("Query %d is not available", queryNumber));
             }
 
             /* Set up timing logger to output to file */
             setLogger(timeOutPath);
 
+            /* Set up Hazelcast, read CSV file and start Job */
+            Job<Long, InhabitantRecord> job = hazelcastSetUp(addresses, inPath, InhabitantRecordSerializationMode.getMode(queryNumber));
+            Query query = new Query(job);
+
             List<String> list;
-            Long start;
+            timeLogger.info("Comienzo del trabajo map/reduce.");
+            Long start = System.currentTimeMillis();
             /* Switch on map/reduce query to perform */
             switch (queryNumber) {
                 case 1: {
-                    /* Set up Hazelcast, read CSV file and start Job */
-                    Job<Long, InhabitantRecord> job = hazelcastSetUp(addresses, inPath, InhabitantRecordSerializationMode.QUERY_0);
-                    Query query = new Query(job);
-
-                    timeLogger.info("Comienzo del trabajo map/reduce.");
-                    start = System.currentTimeMillis();
-
                     /* Total​ ​de​ ​habitantes​ ​por​ ​región​ ​del​ ​país,​ ​ordenado​ ​descendentemente​ ​por​ ​el total​ ​de​ ​habitantes. */
                     List<Map.Entry<Region, Long>> queryList = query.populationPerRegion();
                     list = Query.mapToStringList(queryList);
                     break;
                 }
                 case 2: {
-                    /* Set up Hazelcast, read CSV file and start Job */
-                    Job<Long, InhabitantRecord> job = hazelcastSetUp(addresses, inPath, InhabitantRecordSerializationMode.QUERY_1);
-                    Query query = new Query(job);
-
-                    timeLogger.info("Comienzo del trabajo map/reduce.");
-                    start = System.currentTimeMillis();
                     /* Los​ ​"​n"​ ​departamentos​ ​más​ ​habitados​ ​de​ ​la​ ​provincia​ ​"p​rov". */
                     List<Map.Entry<String, Long>> queryList = query.nDepartmentsByPopulation(prov, n);
                     list = Query.mapToStringList(queryList);
                     break;
                 }
                 case 3: {
-                    /* Set up Hazelcast, read CSV file and start Job */
-                    Job<Long, InhabitantRecord> job = hazelcastSetUp(addresses, inPath, InhabitantRecordSerializationMode.QUERY_2);
-                    Query query = new Query(job);
-
-                    timeLogger.info("Comienzo del trabajo map/reduce.");
-                    start = System.currentTimeMillis();
                     /* Índice​ ​de​ ​desempleo​ ​por​ ​cada​ ​región​ ​del​ ​país,​ ​ordenado​ ​descendentemente por​ ​el​ ​índice​ ​de​
                      *  ​desempleo
                      */
@@ -126,24 +119,12 @@ public class Client {
                     break;
                 }
                 case 4: {
-                    /* Set up Hazelcast, read CSV file and start Job */
-                    Job<Long, InhabitantRecord> job = hazelcastSetUp(addresses, inPath, InhabitantRecordSerializationMode.QUERY_3);
-                    Query query = new Query(job);
-
-                    timeLogger.info("Comienzo del trabajo map/reduce.");
-                    start = System.currentTimeMillis();
                     /* Total​ ​de​ ​hogares​ ​por​ ​cada​ ​región​ ​del​ ​país​ ​ordenado​ ​descendentemente​ ​por​ ​el total​ ​de​ ​hogares. */
                     List<Map.Entry<Region, Integer>> queryList = query.householdsPerRegion();
                     list = Query.mapToStringList(queryList);
                     break;
                 }
                 case 5: {
-                    /* Set up Hazelcast, read CSV file and start Job */
-                    Job<Long, InhabitantRecord> job = hazelcastSetUp(addresses, inPath, InhabitantRecordSerializationMode.QUERY_4);
-                    Query query = new Query(job);
-
-                    timeLogger.info("Comienzo del trabajo map/reduce.");
-                    start = System.currentTimeMillis();
                     /*  Por​ ​cada​ ​región​ ​del​ ​país​ ​el​ ​promedio​ ​de​ ​habitantes​ ​por​ ​hogar,​ ​ordenado descendentemente​ ​por​ ​el
                      *​  ​promedio​ ​de​ ​habitantes,​ ​mostrándose​ ​siempre​ ​dos decimales.
                      */
@@ -155,12 +136,6 @@ public class Client {
                     break;
                 }
                 case 6: {
-                    /* Set up Hazelcast, read CSV file and start Job */
-                    Job<Long, InhabitantRecord> job = hazelcastSetUp(addresses, inPath, InhabitantRecordSerializationMode.QUERY_5);
-                    Query query = new Query(job);
-
-                    timeLogger.info("Comienzo del trabajo map/reduce.");
-                    start = System.currentTimeMillis();
                     /* Los​ ​nombres​ ​de​ ​departamentos​ ​que​ ​aparecen​ ​en​ ​al​ ​menos​ ​"n​ "​ ​provincias, ordenado​ ​descendentemente​
                      * por​ ​el​ ​número​ ​de​ ​apariciones
                      */
@@ -169,12 +144,6 @@ public class Client {
                     break;
                 }
                 case 7: {
-                    /* Set up Hazelcast, read CSV file and start Job */
-                    Job<Long, InhabitantRecord> job = hazelcastSetUp(addresses, inPath, InhabitantRecordSerializationMode.QUERY_6);
-                    Query query = new Query(job);
-
-                    timeLogger.info("Comienzo del trabajo map/reduce.");
-                    start = System.currentTimeMillis();
                     /* Los​ ​pares​ ​de​ ​provincias​ ​que​ ​comparten​ ​al​ ​menos​ ​"n​ "​ ​nombres​ ​de departamentos,​ ​ordenado​ ​
                      * descendentemente​ ​por​ ​la​ ​cantidad​ ​de​ ​coincidencias
                      */
@@ -194,9 +163,9 @@ public class Client {
             /* Write results to output file */
             writeToOutput(list, outPath);
         } catch (IOException | InterruptedException | ExecutionException e) {
-            logger.error("ERROR", e);
-        } catch (MissingArgumentException e) {
-            logger.error("Error: {}", e.getMessage());
+            logger.error("ERROR: {}", e.getMessage());
+        } catch (MissingArgumentException | IllegalArgumentException e) {
+            logger.error("User error: {}", e.getMessage());
         } finally {
             /* Close client Hazelcast instance */
             Optional.ofNullable(map).ifPresent(DistributedObject::destroy);
@@ -204,7 +173,7 @@ public class Client {
         }
     }
 
-    static Job<Long, InhabitantRecord> hazelcastSetUp(String[] addresses, String path, InhabitantRecordSerializationMode mode) throws IOException, InterruptedException {
+    private static Job<Long, InhabitantRecord> hazelcastSetUp(String[] addresses, String path, InhabitantRecordSerializationMode mode) throws IOException, InterruptedException {
         final ClientConfig ccfg = new ClientConfig();
         GroupConfig groupConfig = ccfg.getGroupConfig();
         groupConfig.setName("tpe-7");
@@ -233,9 +202,7 @@ public class Client {
 
                     recordMap.put(current, InhabitantRecordFactory.create(condition, homeId, departmentName, province, mode));
                 }
-                pool.execute(() -> {
-                    map.putAll(recordMap);
-                });
+                pool.execute(() -> map.putAll(recordMap));
                 id += MAP_INSERT_CHUNK;
             }
             pool.shutdown();
